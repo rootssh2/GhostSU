@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ghostsu_settings_subtitle">Gerenciador Ghost SU</string>
+    <string name="ghostsu_settings_section_appearance">Aparência</string>
+    <string name="ghostsu_settings_section_modules">Módulos</string>
+    <string name="ghostsu_settings_section_root_security">Root e segurança</string>
+    <string name="ghostsu_settings_section_advanced">Opções avançadas</string>
+    <string name="ghostsu_settings_section_information">Informações e diagnóstico</string>
+    <string name="ghostsu_settings_kernel_notice">As funções de root dependem do suporte do kernel. A aba Ghost continua acessível após reiniciar.</string>
+    <string name="ghostsu_settings_module_update_summary">Verificar atualizações dos módulos instalados.</string>
+    <string name="ghostsu_about_creator">Criador · @Root2022</string>
+    <string name="ghostsu_about_description">Gerenciador independente do KernelSU com aba Ghost para reativar o root temporário quando necessário.</string>
+    <string name="ghostsu_about_licenses">Os créditos e textos das licenças do KernelSU e do GhostLock estão incluídos no aplicativo.</string>
+    <string name="ghostsu_ghost_status_ready">Pronto para ativar</string>
+    <string name="ghostsu_ghost_status_ready_summary">Kernel compatível · perfil do dispositivo pronto</string>
+    <string name="ghostsu_ghost_status_active">Root temporário ativo</string>
+    <string name="ghostsu_ghost_status_active_summary">Ghost SU reconhecido pelo KernelSU</string>
+    <string name="ghostsu_ghost_action_active">Root já ativo</string>
+</resources>

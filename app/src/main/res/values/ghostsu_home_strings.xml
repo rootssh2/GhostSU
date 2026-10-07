@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ghostsu_home_brand_subtitle">MANAGER</string>
+    <string name="ghostsu_home_overview">Overview</string>
+    <string name="ghostsu_home_overview_subtitle">Clear control of temporary root and the system.</string>
+    <string name="ghostsu_home_root_access">Root access</string>
+    <string name="ghostsu_home_system_status">System status</string>
+    <string name="ghostsu_home_active">Active</string>
+    <string name="ghostsu_home_root_active">Temporary root active</string>
+    <string name="ghostsu_home_root_active_summary">Ghost SU is recognized by KernelSU. Temporary access in this session.</string>
+    <string name="ghostsu_home_installed">KernelSU installed</string>
+    <string name="ghostsu_home_root_unavailable_summary">KernelSU is installed, but Root is not available.</string>
+    <string name="ghostsu_home_root_available">Root available</string>
+    <string name="ghostsu_home_reboot_hint">After a full reboot, check the status and activate again from the Ghost tab if needed.</string>
+    <string name="ghostsu_home_device">Device</string>
+    <string name="ghostsu_home_model">Model</string>
+    <string name="ghostsu_home_kernel">Kernel</string>
+    <string name="ghostsu_home_security">System security</string>
+    <string name="ghostsu_home_current_state">current state</string>
+    <string name="ghostsu_home_selinux">SELinux</string>
+    <string name="ghostsu_home_seccomp">Seccomp</string>
+</resources>

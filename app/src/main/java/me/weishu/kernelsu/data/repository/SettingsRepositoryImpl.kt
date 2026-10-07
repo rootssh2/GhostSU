@@ -41,16 +41,12 @@ class SettingsRepositoryImpl : SettingsRepository {
         get() = prefs.getString("ui_mode", UiMode.DEFAULT_VALUE) ?: UiMode.DEFAULT_VALUE
         set(value) = prefs.edit { putString("ui_mode", value) }
 
-    override var checkUpdate: Boolean
-        get() = prefs.getBoolean("check_update", true)
-        set(value) = prefs.edit { putBoolean("check_update", value) }
-
     override var checkModuleUpdate: Boolean
         get() = prefs.getBoolean("module_check_update", true)
         set(value) = prefs.edit { putBoolean("module_check_update", value) }
 
     override var themeMode: Int
-        get() = prefs.getInt("color_mode", 0)
+        get() = prefs.getInt("color_mode", 2)
         set(value) = prefs.edit { putInt("color_mode", value) }
 
     override var miuixMonet: Boolean
@@ -58,7 +54,7 @@ class SettingsRepositoryImpl : SettingsRepository {
         set(value) = prefs.edit { putBoolean("miuix_monet", value) }
 
     override var keyColor: Int
-        get() = prefs.getInt("key_color", 0)
+        get() = prefs.getInt("key_color", 0xFF6750C2.toInt())
         set(value) = prefs.edit { putInt("key_color", value) }
 
     override var colorStyle: String

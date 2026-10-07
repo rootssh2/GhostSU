@@ -1,0 +1,1 @@
+KernelSU Manager e código nativo: Copyright respectivos autores do KernelSU, GPL-3.0 (texto incluído). GhostLock: Copyright respectivos autores do GhostLock, Apache-2.0 (texto incluído).

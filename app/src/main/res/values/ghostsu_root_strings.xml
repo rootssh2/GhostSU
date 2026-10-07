@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ghostsu_root_brand_name">Ghost SU</string>
+    <string name="ghostsu_root_brand_subtitle">MANAGER</string>
+    <string name="ghostsu_root_title">Root</string>
+    <string name="ghostsu_root_subtitle">Manage which apps can use root.</string>
+    <string name="ghostsu_root_apps">Applications</string>
+    <string name="ghostsu_root_empty">No applications found</string>
+    <string name="ghostsu_root_empty_search">No applications match the search</string>
+    <string name="ghostsu_root_disclaimer">Tap an application to view or change its access profile. Root states are not changed directly from this list.</string>
+    <string name="ghostsu_root_status_root">ROOT</string>
+    <string name="ghostsu_root_status_no_root">NO ROOT</string>
+    <string name="ghostsu_root_status_custom">CUSTOM</string>
+</resources>

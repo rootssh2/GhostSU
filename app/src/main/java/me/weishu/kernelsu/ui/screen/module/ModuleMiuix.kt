@@ -99,6 +99,7 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
+import me.weishu.kernelsu.Natives
 import me.weishu.kernelsu.R
 import me.weishu.kernelsu.data.model.Module
 import me.weishu.kernelsu.data.model.ModuleUpdateInfo
@@ -264,7 +265,7 @@ fun ModulePagerMiuix(
                 searchStatus.TopAppBarAnim(backgroundColor = barColor) {
                     TopAppBar(
                         color = barColor,
-                        title = stringResource(R.string.module),
+                        title = stringResource(R.string.ghostsu_module_title),
                         actions = {
                             Box {
                                 val showTopPopup = remember { mutableStateOf(false) }
@@ -439,6 +440,8 @@ fun ModulePagerMiuix(
                         end = 0.dp,
                         bottom = maxOf(bottomInnerPadding, imeBottomPadding),
                     ),
+                    showIntro = false,
+                    isSafeMode = false,
                 )
             }
         },
@@ -541,6 +544,8 @@ fun ModulePagerMiuix(
                             },
                             contentPadding = contentPadding,
                             listState = listState,
+                            showIntro = true,
+                            isSafeMode = uiState.isSafeMode,
                         )
                     }
                 }
@@ -686,6 +691,140 @@ private fun ModuleShortcutDialog(
 }
 
 @Composable
+private fun ModuleMiuixIntro(
+    isSafeMode: Boolean,
+    onOpenRepo: () -> Unit,
+) {
+    val isLateLoad = Natives.isLateLoadMode
+    val active = !isSafeMode && Natives.isManager
+    val statusText = when {
+        isSafeMode -> stringResource(R.string.ghostsu_module_disabled)
+        active -> stringResource(R.string.ghostsu_module_active)
+        else -> stringResource(R.string.ghostsu_module_available)
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Image(
+                painter = painterResource(R.drawable.ghost_su_logo),
+                contentDescription = stringResource(R.string.ghost_app_name),
+                modifier = Modifier.size(46.dp),
+            )
+            Column(
+                modifier = Modifier
+                    .padding(start = 10.dp)
+                    .weight(1f),
+            ) {
+                Text(
+                    text = stringResource(R.string.ghost_app_name),
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = colorScheme.onSurface,
+                )
+                Text(
+                    text = stringResource(R.string.ghostsu_module_manager_label),
+                    fontSize = 11.sp,
+                    color = colorScheme.onSurfaceVariantSummary,
+                )
+            }
+            TextButton(
+                text = stringResource(R.string.ghostsu_module_catalog),
+                onClick = onOpenRepo,
+            )
+        }
+
+        Text(
+            text = stringResource(R.string.ghostsu_module_title),
+            fontSize = 32.sp,
+            fontWeight = FontWeight.Bold,
+            color = colorScheme.onSurface,
+        )
+        Text(
+            text = stringResource(R.string.ghostsu_module_subtitle),
+            fontSize = 16.sp,
+            color = colorScheme.onSurfaceVariantSummary,
+        )
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(26.dp))
+                .background(colorScheme.primaryContainer)
+                .padding(horizontal = 18.dp, vertical = 15.dp),
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = if (isLateLoad) {
+                            stringResource(R.string.ghostsu_module_temporary_mode)
+                        } else {
+                            stringResource(R.string.ghostsu_module_kernel_su)
+                        },
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = colorScheme.onPrimaryContainer,
+                    )
+                    Text(
+                        text = stringResource(R.string.ghostsu_module_kernel_su),
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = colorScheme.onPrimaryContainer,
+                    )
+                }
+                Box(
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(if (active) Color(0xFF2F7E67) else colorScheme.surfaceVariant)
+                        .padding(horizontal = 12.dp, vertical = 7.dp),
+                ) {
+                    Text(
+                        text = statusText,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = if (active) Color.White else colorScheme.onSurfaceVariantSummary,
+                    )
+                }
+            }
+        }
+
+        if (isLateLoad) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(22.dp))
+                    .background(colorScheme.surfaceVariant)
+                    .padding(horizontal = 16.dp, vertical = 13.dp),
+                verticalAlignment = Alignment.Top,
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(22.dp)
+                        .clip(CircleShape)
+                        .background(colorScheme.primary),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text("i", color = colorScheme.onPrimary, fontWeight = FontWeight.Bold)
+                }
+                Text(
+                    text = stringResource(R.string.ghostsu_module_late_load_notice),
+                    modifier = Modifier.padding(start = 12.dp),
+                    fontSize = 14.sp,
+                    color = colorScheme.onSurfaceVariantSummary,
+                )
+            }
+        }
+    }
+}
+
+@Composable
 private fun ModuleList(
     modifier: Modifier = Modifier,
     modules: List<Module>,
@@ -694,6 +833,8 @@ private fun ModuleList(
     onModuleAddShortcut: (Module, ShortcutType) -> Unit,
     contentPadding: PaddingValues,
     listState: LazyListState = rememberLazyListState(),
+    showIntro: Boolean = false,
+    isSafeMode: Boolean = false,
 ) {
     val loadingDialog = rememberLoadingDialog()
     val scope = rememberCoroutineScope()
@@ -703,6 +844,35 @@ private fun ModuleList(
         contentPadding = contentPadding,
         overscrollEffect = null,
     ) {
+        if (showIntro) {
+            item(key = "module_intro", contentType = "module_intro") {
+                ModuleMiuixIntro(
+                    isSafeMode = isSafeMode,
+                    onOpenRepo = actions.onOpenRepo,
+                )
+            }
+            item(key = "module_section_header", contentType = "module_section_header") {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp, vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = stringResource(R.string.ghostsu_module_installed),
+                        fontSize = 17.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = colorScheme.onSurface,
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+                    Text(
+                        text = stringResource(R.string.ghostsu_module_module_count, modules.size),
+                        fontSize = 13.sp,
+                        color = colorScheme.onSurfaceVariantSummary,
+                    )
+                }
+            }
+        }
         items(
             items = modules,
             key = { it.id },
@@ -791,6 +961,20 @@ fun ModuleItem(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(colorScheme.primaryContainer),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Code,
+                    tint = colorScheme.onPrimaryContainer,
+                    contentDescription = null,
+                    modifier = Modifier.size(23.dp),
+                )
+            }
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -882,6 +1066,46 @@ fun ModuleItem(
                 color = colorScheme.onSurfaceVariantSummary,
                 textDecoration = textDecoration
             )
+        }
+
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.padding(top = 8.dp),
+        ) {
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(if (module.enabled && !module.remove) Color(0xFF2F7E67) else colorScheme.surfaceVariant)
+                    .padding(horizontal = 9.dp, vertical = 4.dp),
+            ) {
+                Text(
+                    text = stringResource(
+                        if (module.enabled && !module.remove) {
+                            R.string.ghostsu_module_active
+                        } else {
+                            R.string.ghostsu_module_disabled
+                        }
+                    ),
+                    color = if (module.enabled && !module.remove) Color.White else colorScheme.onSurfaceVariantSummary,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+            if (hasUpdate) {
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(colorScheme.secondaryContainer)
+                        .padding(horizontal = 9.dp, vertical = 4.dp),
+                ) {
+                    Text(
+                        text = stringResource(R.string.ghostsu_module_update_badge),
+                        color = colorScheme.onSecondaryContainer,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                }
+            }
         }
 
         HorizontalDivider(

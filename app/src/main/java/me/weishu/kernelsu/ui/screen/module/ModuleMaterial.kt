@@ -57,6 +57,7 @@ import androidx.compose.material.icons.outlined.Cloud
 import androidx.compose.material.icons.outlined.Code
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Download
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.Button
@@ -126,6 +127,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
+import me.weishu.kernelsu.Natives
 import me.weishu.kernelsu.R
 import me.weishu.kernelsu.data.model.Module
 import me.weishu.kernelsu.data.model.ModuleUpdateInfo
@@ -271,7 +273,7 @@ fun ModulePagerMaterial(
     ExpressiveScaffold(
         topBar = {
             SearchAppBar(
-                title = { Text(stringResource(R.string.module)) },
+                title = { Text(stringResource(R.string.ghostsu_module_title)) },
                 searchText = uiState.searchStatus.searchText,
                 onSearchTextChange = actions.onSearchTextChange,
                 onClearClick = actions.onClearSearch,
@@ -352,6 +354,8 @@ fun ModulePagerMaterial(
                         actions = actions,
                         onModuleAddShortcut = { module, type -> onModuleAddShortcut(module, type) },
                         closeSearch = closeSearch,
+                        showIntro = false,
+                        isSafeMode = false,
                     )
                 }
             )
@@ -456,6 +460,8 @@ fun ModulePagerMaterial(
                 updateInfoMap = uiState.updateInfo,
                 actions = actions,
                 onModuleAddShortcut = { module, type -> onModuleAddShortcut(module, type) },
+                showIntro = true,
+                isSafeMode = uiState.isSafeMode,
             )
         }
     }
@@ -477,6 +483,141 @@ fun ModulePagerMaterial(
 }
 
 @Composable
+private fun ModuleMaterialIntro(
+    isSafeMode: Boolean,
+    onOpenRepo: () -> Unit,
+) {
+    val isLateLoad = Natives.isLateLoadMode
+    val isKernelSuManager = Natives.isManager
+    val active = !isSafeMode && isKernelSuManager
+    val statusText = when {
+        isSafeMode -> stringResource(R.string.ghostsu_module_disabled)
+        active -> stringResource(R.string.ghostsu_module_active)
+        else -> stringResource(R.string.ghostsu_module_available)
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp, bottom = 4.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Image(
+                painter = painterResource(R.drawable.ghost_su_logo),
+                contentDescription = stringResource(R.string.ghost_app_name),
+                modifier = Modifier.size(46.dp),
+            )
+            Column(
+                modifier = Modifier
+                    .padding(start = 10.dp)
+                    .weight(1f),
+            ) {
+                Text(
+                    text = stringResource(R.string.ghost_app_name),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                )
+                Text(
+                    text = stringResource(R.string.ghostsu_module_manager_label),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            OutlinedButton(onClick = onOpenRepo) {
+                Icon(Icons.Outlined.Cloud, contentDescription = null, modifier = Modifier.size(18.dp))
+                Text(
+                    text = stringResource(R.string.ghostsu_module_catalog),
+                    modifier = Modifier.padding(start = 6.dp),
+                )
+            }
+        }
+
+        Text(
+            text = stringResource(R.string.ghostsu_module_title),
+            style = MaterialTheme.typography.headlineLarge,
+            fontWeight = FontWeight.Bold,
+        )
+        Text(
+            text = stringResource(R.string.ghostsu_module_subtitle),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+
+        TonalCard(
+            modifier = Modifier.fillMaxWidth(),
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            shape = RoundedCornerShape(26.dp),
+        ) {
+            Row(
+                modifier = Modifier.padding(horizontal = 18.dp, vertical = 15.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = if (isLateLoad) {
+                            stringResource(R.string.ghostsu_module_temporary_mode)
+                        } else {
+                            stringResource(R.string.ghostsu_module_kernel_su)
+                        },
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Text(
+                        text = stringResource(R.string.ghostsu_module_kernel_su),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                }
+                Surface(
+                    shape = RoundedCornerShape(50),
+                    color = if (active) Color(0xFF2F7E67) else MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = if (active) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
+                ) {
+                    Text(
+                        text = statusText,
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold,
+                    )
+                }
+            }
+        }
+
+        if (isLateLoad) {
+            TonalCard(
+                modifier = Modifier.fillMaxWidth(),
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                shape = RoundedCornerShape(22.dp),
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 13.dp),
+                    verticalAlignment = Alignment.Top,
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Info,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(21.dp),
+                    )
+                    Text(
+                        text = stringResource(R.string.ghostsu_module_late_load_notice),
+                        modifier = Modifier.padding(start = 12.dp),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
 private fun ModuleList(
     bottomInnerPadding: Dp,
     modifier: Modifier = Modifier,
@@ -486,6 +627,8 @@ private fun ModuleList(
     actions: ModuleActions,
     onModuleAddShortcut: (Module, ShortcutType) -> Unit,
     closeSearch: () -> Unit? = {},
+    showIntro: Boolean = false,
+    isSafeMode: Boolean = false,
 ) {
     val loadingDialog = rememberLoadingDialog()
     LazyColumn(
@@ -498,6 +641,34 @@ private fun ModuleList(
             bottom = 16.dp + bottomInnerPadding + 56.dp + 16.dp
         ),
     ) {
+        if (showIntro) {
+            item(key = "module_intro", contentType = "module_intro") {
+                ModuleMaterialIntro(
+                    isSafeMode = isSafeMode,
+                    onOpenRepo = actions.onOpenRepo,
+                )
+            }
+            item(key = "module_section_header", contentType = "module_section_header") {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp, bottom = 2.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = stringResource(R.string.ghostsu_module_installed),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+                    Text(
+                        text = stringResource(R.string.ghostsu_module_module_count, displayModules.size),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        }
         items(displayModules, key = { it.id }, contentType = { "module" }) { module ->
             val scope = rememberCoroutineScope()
             val moduleUpdateInfo = updateInfoMap[module.id] ?: ModuleUpdateInfo.Empty
@@ -711,6 +882,8 @@ private fun ModuleItem(
 
     TonalCard(
         modifier = Modifier.fillMaxWidth(),
+        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+        shape = RoundedCornerShape(26.dp),
         interactionSource = cardInteractionSource,
         onClick = if (canOpenWebUi) {
             {
@@ -729,13 +902,29 @@ private fun ModuleItem(
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top,
             ) {
                 val moduleVersion = stringResource(id = R.string.module_version)
                 val moduleAuthor = stringResource(id = R.string.module_author)
 
+                Box(
+                    modifier = Modifier
+                        .size(44.dp)
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(MaterialTheme.colorScheme.primaryContainer),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Code,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier.size(23.dp),
+                    )
+                }
                 Column(
-                    modifier = Modifier.fillMaxWidth(0.8f)
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 12.dp, end = 8.dp),
                 ) {
                     Text(
                         text = module.name,
@@ -760,21 +949,14 @@ private fun ModuleItem(
                     )
                 }
 
-                Spacer(modifier = Modifier.weight(1f))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End,
-                ) {
-                    ExpressiveSwitch(
-                        enabled = !module.update,
-                        checked = module.enabled,
-                        onCheckedChange = {
-                            haptic.performHapticFeedback(HapticFeedbackType.VirtualKey)
-                            onCheckChanged(it)
-                        }
-                    )
-                }
+                ExpressiveSwitch(
+                    enabled = !module.update,
+                    checked = module.enabled,
+                    onCheckedChange = {
+                        haptic.performHapticFeedback(HapticFeedbackType.VirtualKey)
+                        onCheckChanged(it)
+                    }
+                )
             }
 
             if (hasDescription) {
@@ -802,13 +984,36 @@ private fun ModuleItem(
                 )
             }
 
-            Row(modifier = Modifier.padding(vertical = 4.dp)) {
+            Row(
+                modifier = Modifier.padding(vertical = 6.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                StatusTag(
+                    label = stringResource(
+                        if (module.enabled && !module.remove) {
+                            R.string.ghostsu_module_active
+                        } else {
+                            R.string.ghostsu_module_disabled
+                        }
+                    ),
+                    modifier = Modifier.padding(bottom = 4.dp),
+                    contentColor = if (module.enabled && !module.remove) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
+                    backgroundColor = if (module.enabled && !module.remove) Color(0xFF2F7E67) else MaterialTheme.colorScheme.surfaceVariant,
+                )
                 if (module.metamodule) {
                     StatusTag(
                         "META",
                         modifier = Modifier.padding(bottom = 4.dp),
                         contentColor = MaterialTheme.colorScheme.onPrimary,
                         backgroundColor = MaterialTheme.colorScheme.primary
+                    )
+                }
+                if (updateUrl.isNotEmpty()) {
+                    StatusTag(
+                        label = stringResource(R.string.ghostsu_module_update_badge),
+                        modifier = Modifier.padding(bottom = 4.dp),
+                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                        backgroundColor = MaterialTheme.colorScheme.secondaryContainer,
                     )
                 }
             }

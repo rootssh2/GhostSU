@@ -1,59 +1,39 @@
 package me.weishu.kernelsu.ui.screen.ghost
 
-import android.app.ActivityManager
-import android.content.Context
-import android.content.pm.PackageManager
-import android.os.Build
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import android.app.Activity
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Intent
+import android.net.Uri
+import android.os.Bundle
+import android.provider.DocumentsContract
+import android.view.WindowManager
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Memory
-import androidx.compose.material.icons.rounded.Security
-import androidx.compose.material.icons.rounded.SettingsSuggest
-import androidx.compose.material.icons.rounded.Smartphone
-import androidx.compose.material.icons.rounded.Speed
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Text
-import androidx.compose.material3.AssistChip
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import me.weishu.kernelsu.R
-import rikka.shizuku.Shizuku
-import java.util.Locale
-import kotlin.math.roundToInt
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import me.weishu.kernelsu.ghost.data.AndroidGhostlockRepository
+import me.weishu.kernelsu.ghost.ui.DocumentRequest
+import me.weishu.kernelsu.ghost.ui.GhostlockActions
+import me.weishu.kernelsu.ghost.ui.GhostlockApp
+import me.weishu.kernelsu.ghost.ui.GhostlockEffect
+import me.weishu.kernelsu.ghost.ui.GhostlockViewModel
+import me.weishu.kernelsu.ksuApp
 
 @Composable
 fun GhostPager(
@@ -61,175 +41,151 @@ fun GhostPager(
     isCurrentPage: Boolean,
 ) {
     val context = LocalContext.current
-    val memory = remember(context) {
-        ActivityManager.MemoryInfo().also { info ->
-            context.getSystemService(ActivityManager::class.java)?.getMemoryInfo(info)
+    val viewModel: GhostlockViewModel = viewModel(
+        factory = viewModelFactory {
+            initializer { GhostlockViewModel(AndroidGhostlockRepository(ksuApp)) }
+        },
+    )
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    var pendingDocumentRequest by rememberSaveable { mutableStateOf<DocumentRequest?>(null) }
+
+    val documentPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
+        val request = pendingDocumentRequest
+        pendingDocumentRequest = null
+        if (uri != null && request != null) viewModel.onDocumentResult(request, uri.toString())
+    }
+    val documentsPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris: List<Uri> ->
+        val request = pendingDocumentRequest
+        pendingDocumentRequest = null
+        if (uris.isNotEmpty() && request != null) viewModel.onDocumentsResult(request, uris.map(Uri::toString))
+    }
+    val folderPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri: Uri? ->
+        viewModel.onDebugExportLocationPicked(uri?.let(::documentTreeRelativePath))
+    }
+    val profileCreator = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")) { uri: Uri? ->
+        viewModel.onExportProfileDocumentPicked(uri?.toString())
+    }
+
+    LaunchedEffect(viewModel) {
+        viewModel.initialize()
+        viewModel.effects.collect { effect ->
+            when (effect) {
+                is GhostlockEffect.PickDocument -> {
+                    pendingDocumentRequest = effect.request
+                    documentPicker.launch(arrayOf("*/*"))
+                }
+                GhostlockEffect.PickDebugFolder -> folderPicker.launch(null)
+                is GhostlockEffect.CreateProfileDocument -> profileCreator.launch(effect.suggestedName)
+                is GhostlockEffect.Share -> {
+                    val intent = Intent(Intent.ACTION_SEND).apply {
+                        type = "text/plain"
+                        putExtra(Intent.EXTRA_STREAM, Uri.parse(effect.uri))
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    }
+                    context.startActivity(Intent.createChooser(intent, "Ghost SU"))
+                }
+                is GhostlockEffect.Toast -> Toast.makeText(context, effect.resourceId, Toast.LENGTH_SHORT).show()
+                is GhostlockEffect.Clipboard -> {
+                    context.getSystemService(ClipboardManager::class.java)
+                        ?.setPrimaryClip(ClipData.newPlainText("ghost-su-log", effect.text))
+                }
+                is GhostlockEffect.KeepScreenAwake -> {
+                    (context as? Activity)?.let { activity ->
+                        if (effect.enabled) activity.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                        else activity.window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                    }
+                }
+                GhostlockEffect.OpenShizuku -> context.packageManager
+                    .getLaunchIntentForPackage("moe.shizuku.privileged.api")
+                    ?.let(context::startActivity)
+            }
         }
     }
-    var safeMode by rememberSaveable { mutableStateOf(false) }
-    val shizukuReady = remember { runCatching { Shizuku.pingBinder() && Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED }.getOrDefault(false) }
-    val totalRam = formatMemory(memory.totalMem)
-    val availableRam = formatMemory(memory.availMem)
-    val soc = remember {
-        listOf(Build.SOC_MODEL, Build.HARDWARE, Build.BOARD)
-            .firstOrNull { it.isNotBlank() && !it.equals("unknown", ignoreCase = true) }
-            ?: "${Build.MANUFACTURER} ${Build.MODEL}"
-    }
-    val cpu = remember { "${Runtime.getRuntime().availableProcessors()} núcleos" }
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface)
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp)
-            .padding(top = 18.dp, bottom = bottomInnerPadding + 18.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp),
+            .padding(bottom = bottomInnerPadding),
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            Icon(
-                imageVector = Icons.Rounded.Security,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(32.dp),
-            )
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = stringResource(R.string.ghost),
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                )
-                Text(
-                    text = stringResource(R.string.ghost_subtitle),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-        }
-
-        Card(
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-            shape = RoundedCornerShape(20.dp),
-        ) {
-            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text(stringResource(R.string.ghost_environment_status), fontWeight = FontWeight.Bold)
-                    AssistChip(
-                        onClick = {},
-                        label = { Text(if (shizukuReady) stringResource(R.string.ghost_enabled) else stringResource(R.string.ghost_disabled)) },
-                        leadingIcon = { Icon(Icons.Rounded.Security, contentDescription = null, modifier = Modifier.size(16.dp)) },
-                    )
-                }
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    StatusTile(
-                        modifier = Modifier.weight(1f),
-                        label = stringResource(R.string.ghost_shizuku),
-                        value = if (shizukuReady) stringResource(R.string.ghost_enabled) else stringResource(R.string.ghost_disabled),
-                        accent = shizukuReady,
-                    )
-                    StatusTile(
-                        modifier = Modifier.weight(1f),
-                        label = stringResource(R.string.ghost_safe_mode),
-                        value = if (safeMode) stringResource(R.string.ghost_enabled) else stringResource(R.string.ghost_disabled),
-                        accent = safeMode,
-                    )
-                }
-                FilterChip(
-                    selected = safeMode,
-                    onClick = { safeMode = !safeMode },
-                    label = { Text(stringResource(R.string.ghost_safe_mode)) },
-                    leadingIcon = { Icon(Icons.Rounded.SettingsSuggest, contentDescription = null, modifier = Modifier.size(18.dp)) },
-                )
-                OutlinedButton(onClick = {}, modifier = Modifier.fillMaxWidth()) {
-                    Text(stringResource(R.string.ghost_configure))
-                }
-            }
-        }
-
-        Text(stringResource(R.string.ghost_device), fontWeight = FontWeight.Bold)
-        Card(
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
-            shape = RoundedCornerShape(18.dp),
-        ) {
-            Row(
-                modifier = Modifier.padding(16.dp).fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                Icon(Icons.Rounded.Smartphone, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(34.dp))
-                Column {
-                    Text(soc, fontWeight = FontWeight.Bold)
-                    Text(
-                        "${Build.VERSION.RELEASE} · ${Build.VERSION.SDK_INT} · ${Build.SUPPORTED_ABIS.firstOrNull() ?: "unknown"}",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                }
-            }
-        }
-
-        Text(stringResource(R.string.ghost_hardware), fontWeight = FontWeight.Bold)
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            HardwareTile(Modifier.weight(1f), Icons.Rounded.Speed, stringResource(R.string.ghost_cpu), cpu)
-            HardwareTile(Modifier.weight(1f), Icons.Rounded.Memory, stringResource(R.string.ghost_ram_total), totalRam)
-        }
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            HardwareTile(Modifier.weight(1f), Icons.Rounded.Memory, stringResource(R.string.ghost_ram_available), availableRam)
-            HardwareTile(Modifier.weight(1f), Icons.Rounded.SettingsSuggest, stringResource(R.string.ghost_kernel), Build.VERSION.INCREMENTAL)
-        }
-
-        Button(
-            onClick = {},
-            enabled = false,
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = .42f)),
-        ) {
-            Text(stringResource(R.string.ghost_run))
-        }
-        Text(
-            text = stringResource(R.string.ghost_integration_pending),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            style = MaterialTheme.typography.bodySmall,
+        GhostlockApp(
+            state = state,
+            actions = ghostActions(viewModel, pendingDocumentRequest = { pendingDocumentRequest = it }, documentsPicker = { request, multiple ->
+                pendingDocumentRequest = request
+                if (multiple) documentsPicker.launch(arrayOf("text/plain", "application/octet-stream", "application/json"))
+                else documentPicker.launch(arrayOf("*/*"))
+            }),
         )
     }
 }
 
-@Composable
-private fun StatusTile(modifier: Modifier, label: String, value: String, accent: Boolean) {
-    Card(
-        modifier = modifier,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
-        shape = RoundedCornerShape(14.dp),
-    ) {
-        Column(modifier = Modifier.padding(12.dp)) {
-            Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Spacer(Modifier.height(4.dp))
-            Text(value, fontWeight = FontWeight.Bold, color = if (accent) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface)
-        }
-    }
+private fun documentTreeRelativePath(uri: Uri): String? {
+    val documentId = runCatching { DocumentsContract.getTreeDocumentId(uri) }.getOrNull() ?: return null
+    if (!documentId.startsWith("primary:")) return null
+    return documentId.substringAfter(':').trim('/').ifEmpty { null }
 }
 
-@Composable
-private fun HardwareTile(modifier: Modifier, icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, value: String) {
-    Card(
-        modifier = modifier,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
-        shape = RoundedCornerShape(14.dp),
-    ) {
-        Column(modifier = Modifier.padding(12.dp)) {
-            Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
-            Spacer(Modifier.height(7.dp))
-            Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text(value, fontWeight = FontWeight.Bold, maxLines = 1)
-        }
-    }
-}
-
-private fun formatMemory(bytes: Long): String {
-    val gb = bytes / 1024.0 / 1024.0 / 1024.0
-    return if (gb >= 1.0) String.format(Locale.US, "%.1f GB", gb) else "${(bytes / 1024 / 1024).roundToInt()} MB"
+private fun ghostActions(
+    viewModel: GhostlockViewModel,
+    pendingDocumentRequest: (DocumentRequest) -> Unit,
+    documentsPicker: (DocumentRequest, Boolean) -> Unit,
+): GhostlockActions = object : GhostlockActions {
+    override fun onRun() = viewModel.onRun()
+    override fun onProfileInvalid() = viewModel.onProfileInvalid()
+    override fun onStatusClick() = viewModel.onStatusClick()
+    override fun onCloseExecutionSheet() = viewModel.onCloseExecutionSheet()
+    override fun onCopyLogs() = viewModel.copyLogs()
+    override fun onImportOffsetsHocon() { documentsPicker(DocumentRequest.ImportOffsetsHocon, true) }
+    override fun onImportOffsetsJson() { documentsPicker(DocumentRequest.ImportOffsetsJson, true) }
+    override fun onDocumentsResult(request: DocumentRequest, uris: List<String>) = viewModel.onDocumentsResult(request, uris)
+    override fun onParseOta() = viewModel.promptParseUrl()
+    override fun onParseImage() = viewModel.parseOffsets()
+    override fun onCpuPairSelected(index: Int) = viewModel.selectCpuPair(index)
+    override fun onSafeModeChanged(enabled: Boolean) = viewModel.toggleSafeMode(enabled)
+    override fun onForceAttackTestChanged(enabled: Boolean) = viewModel.toggleForceAttackTest(enabled)
+    override fun onShizukuChanged(enabled: Boolean) = viewModel.toggleShizuku(enabled)
+    override fun onDialogItemSelected(index: Int) = viewModel.onDialogItemSelected(index)
+    override fun onDialogInputChange(value: String) = viewModel.onDialogInputChange(value)
+    override fun onDialogConfirm(value: String) = viewModel.onDialogConfirm(value)
+    override fun onDialogDismiss() = viewModel.onDialogDismiss()
+    override fun onDialogDismissFinished() = viewModel.onDialogDismissFinished()
+    override fun onOverwriteConfirm() = viewModel.onOverwriteConfirm()
+    override fun onOverwriteDismiss() = viewModel.onOverwriteDismiss()
+    override fun onExecutionFieldChanged(path: String, value: String) = viewModel.updateExecutionField(path, value)
+    override fun onRouteChanged(index: Int) = viewModel.onRouteChanged(index)
+    override fun onFallbackChanged(index: Int) = viewModel.onFallbackChanged(index)
+    override fun onExportProfile() = viewModel.onExportProfile()
+    override fun onSaveProfileEdits() = viewModel.onSaveProfileEdits()
+    override fun onSaveProfileAs() = viewModel.onSaveProfileAs()
+    override fun onExportProfileEdits() = viewModel.onExportProfileEdits()
+    override fun onRevertProfileEdits() = viewModel.onRevertProfileEdits()
+    override fun onOpenAdvanced() = viewModel.onOpenAdvanced()
+    override fun onCloseAdvanced() = viewModel.onCloseAdvanced()
+    override fun onShowAbout() = viewModel.onShowAbout()
+    override fun onCloseAbout() = viewModel.onCloseAbout()
+    override fun onDebugExportChanged(enabled: Boolean) = viewModel.onDebugExportChanged(enabled)
+    override fun onDebugExportLocationPick() = viewModel.onDebugExportLocationPick()
+    override fun onDebugKernelLogChanged(enabled: Boolean) = viewModel.onDebugKernelLogChanged(enabled)
+    override fun onOpenParameters() = viewModel.onOpenParameters()
+    override fun onCloseParameters() = viewModel.onCloseParameters()
+    override fun onOpenLoadConfig() = viewModel.onOpenLoadConfig()
+    override fun onCloseLoadConfig() = viewModel.onCloseLoadConfig()
+    override fun onOpenUserProfileDetail(name: String) = viewModel.onOpenUserProfileDetail(name)
+    override fun onCloseUserProfileDetail() = viewModel.onCloseUserProfileDetail()
+    override fun onLoadUserProfile(name: String) = viewModel.onLoadUserProfile(name)
+    override fun onUnloadUserProfile() = viewModel.onUnloadUserProfile()
+    override fun onEditUserProfile(name: String) = viewModel.onEditUserProfile(name)
+    override fun onUserProfileRename(name: String) = viewModel.onUserProfileRename(name)
+    override fun onUserProfileExport(name: String) = viewModel.onUserProfileExport(name)
+    override fun onConvertUserProfile(name: String) = viewModel.onConvertUserProfile(name)
+    override fun onUserProfileDelete(name: String) = viewModel.onUserProfileDelete(name)
+    override fun onUserProfileDeleteConfirm() = viewModel.onUserProfileDeleteConfirm()
+    override fun onUserProfileDeleteDismiss() = viewModel.onUserProfileDeleteDismiss()
+    override fun onOpenBuiltinProfiles() = viewModel.onOpenBuiltinProfiles()
+    override fun onCloseBuiltinProfiles() = viewModel.onCloseBuiltinProfiles()
+    override fun onSelectBuiltinProfile(release: String?) = viewModel.onSelectBuiltinProfile(release)
+    override fun onOpenProfileOverrides() = viewModel.onOpenProfileOverrides()
+    override fun onCloseProfileOverrides() = viewModel.onCloseProfileOverrides()
+    override fun onOpenAdvancedOverrides() = viewModel.onOpenAdvancedOverrides()
+    override fun onCloseAdvancedOverrides() = viewModel.onCloseAdvancedOverrides()
+    override fun onProfileOverrideChanged(path: String, value: String) = viewModel.onProfileOverrideChanged(path, value)
 }

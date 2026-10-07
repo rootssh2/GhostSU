@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ghostsu_home_brand_subtitle">GERENCIADOR</string>
+    <string name="ghostsu_home_overview">Visão geral</string>
+    <string name="ghostsu_home_overview_subtitle">Controle claro do acesso temporário e do sistema.</string>
+    <string name="ghostsu_home_root_access">Acesso root</string>
+    <string name="ghostsu_home_system_status">Estado do sistema</string>
+    <string name="ghostsu_home_active">Ativo</string>
+    <string name="ghostsu_home_root_active">Root temporário ativo</string>
+    <string name="ghostsu_home_root_active_summary">Ghost SU reconhecido pelo KernelSU. Acesso temporário nesta sessão.</string>
+    <string name="ghostsu_home_installed">KernelSU instalado</string>
+    <string name="ghostsu_home_root_unavailable_summary">KernelSU está instalado, mas o Root não está disponível.</string>
+    <string name="ghostsu_home_root_available">Root disponível</string>
+    <string name="ghostsu_home_reboot_hint">Após reiniciar completamente o aparelho, verifique o status e ative novamente na aba Ghost, se necessário.</string>
+    <string name="ghostsu_home_device">Dispositivo</string>
+    <string name="ghostsu_home_model">Modelo</string>
+    <string name="ghostsu_home_kernel">Kernel</string>
+    <string name="ghostsu_home_security">Segurança do sistema</string>
+    <string name="ghostsu_home_current_state">estado atual</string>
+    <string name="ghostsu_home_selinux">SELinux</string>
+    <string name="ghostsu_home_seccomp">Seccomp</string>
+    <string name="home_pr_build_warning">Esta é uma versão de depuração PR. NÃO use em produção!</string>
+    <string name="home_pr_kernel_warning">O kernel foi compilado com suporte à assinatura PR. Este não é um kernel de produção!</string>
+    <string name="home_gki_warning">O modo de trabalho GKI é recomendado apenas para ambientes de teste.</string>
+    <string name="home_jailbreak">Jailbreak</string>
+    <string name="seccomp_status_not_supported">Não suportado</string>
+    <string name="seccomp_status_disabled">Desativado</string>
+    <string name="seccomp_status_strict">Estrito</string>
+    <string name="seccomp_status_filter">Filtro</string>
+    <string name="seccomp_status_unknown">Desconhecido</string>
+</resources>

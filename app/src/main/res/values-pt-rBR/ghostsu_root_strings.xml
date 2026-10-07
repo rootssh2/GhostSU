@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ghostsu_root_brand_name">Ghost SU</string>
+    <string name="ghostsu_root_brand_subtitle">GERENCIADOR</string>
+    <string name="ghostsu_root_title">Root</string>
+    <string name="ghostsu_root_subtitle">Gerencie quais aplicativos podem usar o root.</string>
+    <string name="ghostsu_root_apps">Aplicativos</string>
+    <string name="ghostsu_root_empty">Nenhum aplicativo encontrado</string>
+    <string name="ghostsu_root_empty_search">Nenhum aplicativo corresponde à pesquisa</string>
+    <string name="ghostsu_root_disclaimer">Toque em um aplicativo para consultar ou alterar seu perfil de acesso. Os estados de root não são alterados diretamente por esta lista.</string>
+    <string name="ghostsu_root_status_root">ROOT</string>
+    <string name="ghostsu_root_status_no_root">SEM ROOT</string>
+    <string name="ghostsu_root_status_custom">CUSTOM</string>
+    <string name="settings_sulog">Registros</string>
+    <string name="recently_installed">Instalados recentemente</string>
+    <string name="refresh_pulling">Puxe para atualizar</string>
+    <string name="refresh_release">Solte para atualizar</string>
+    <string name="refresh_refresh">Atualizando…</string>
+    <string name="refresh_complete">Atualizado com sucesso</string>
+    <string name="show_only_primary_user_apps">Mostrar apenas apps do usuário principal</string>
+    <string name="menu_sort">Ordenar</string>
+    <string name="sort_by_name">Nome do aplicativo</string>
+    <string name="sort_by_package_name">Nome do pacote</string>
+    <string name="sort_by_install_time">Data de instalação</string>
+    <string name="sort_by_update_time">Data de atualização</string>
+    <string name="sort_reverse">Inverter</string>
+    <string name="group_contains_apps">Contém %d apps</string>
+</resources>

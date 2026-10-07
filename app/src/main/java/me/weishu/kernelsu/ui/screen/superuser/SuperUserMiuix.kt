@@ -56,6 +56,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -73,7 +74,6 @@ import me.weishu.kernelsu.ui.component.miuix.SearchBox
 import me.weishu.kernelsu.ui.component.miuix.SearchPager
 import me.weishu.kernelsu.ui.component.statustag.StatusTag
 import me.weishu.kernelsu.ui.theme.LocalEnableBlur
-import me.weishu.kernelsu.ui.theme.isInDarkTheme
 import me.weishu.kernelsu.ui.util.BlurredBar
 import me.weishu.kernelsu.ui.util.ownerNameForUid
 import me.weishu.kernelsu.ui.util.rememberBlurBackdrop
@@ -128,15 +128,13 @@ fun SuperUserPagerMiuix(
                 searchStatus.TopAppBarAnim(backgroundColor = barColor) {
                     TopAppBar(
                         color = barColor,
-                        title = stringResource(R.string.superuser),
+                        title = stringResource(R.string.ghostsu_root_title),
                         navigationIcon = {
-                            IconButton(
-                                onClick = actions.onOpenSulog,
-                            ) {
+                            IconButton(onClick = actions.onOpenSulog) {
                                 Icon(
                                     imageVector = MiuixIcons.Notes,
                                     tint = colorScheme.onSurface,
-                                    contentDescription = stringResource(R.string.settings_sulog)
+                                    contentDescription = stringResource(R.string.settings_sulog),
                                 )
                             }
                         },
@@ -158,7 +156,6 @@ fun SuperUserPagerMiuix(
                                             )
                                             val sortConfig = uiState.sortConfig
                                             val sortGroupSize = sortEntries.size + 1
-
                                             sortEntries.forEachIndexed { index, (type, resId) ->
                                                 DropdownImpl(
                                                     text = stringResource(resId),
@@ -168,15 +165,13 @@ fun SuperUserPagerMiuix(
                                                     onSelectedIndexChange = {
                                                         actions.onUpdateSortConfig(sortConfig.withType(type))
                                                         showSortPopup.value = false
-                                                    }
+                                                    },
                                                 )
                                             }
-
                                             HorizontalDivider(
                                                 modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp),
                                                 thickness = 1.5.dp,
                                             )
-
                                             DropdownImpl(
                                                 text = stringResource(R.string.sort_reverse),
                                                 optionSize = sortGroupSize,
@@ -185,12 +180,11 @@ fun SuperUserPagerMiuix(
                                                 onSelectedIndexChange = {
                                                     actions.onUpdateSortConfig(sortConfig.toggleReversed())
                                                     showSortPopup.value = false
-                                                }
+                                                },
                                             )
                                         }
-                                    }
+                                    },
                                 )
-
                                 IconButton(
                                     onClick = { showSortPopup.value = true },
                                     holdDownState = showSortPopup.value,
@@ -198,7 +192,7 @@ fun SuperUserPagerMiuix(
                                     Icon(
                                         imageVector = MiuixIcons.Sort,
                                         tint = colorScheme.onSurface,
-                                        contentDescription = stringResource(R.string.menu_sort)
+                                        contentDescription = stringResource(R.string.menu_sort),
                                     )
                                 }
                             }
@@ -209,9 +203,7 @@ fun SuperUserPagerMiuix(
                                     show = showTopPopup.value,
                                     popupPositionProvider = ListPopupDefaults.MenuPositionProvider,
                                     alignment = PopupPositionProvider.Align.TopEnd,
-                                    onDismissRequest = {
-                                        showTopPopup.value = false
-                                    },
+                                    onDismissRequest = { showTopPopup.value = false },
                                     content = {
                                         val isMultiUser = uiState.userIds.size > 1
                                         val size = if (isMultiUser) 2 else 1
@@ -224,7 +216,7 @@ fun SuperUserPagerMiuix(
                                                     actions.onToggleShowSystemApps()
                                                     showTopPopup.value = false
                                                 },
-                                                index = 0
+                                                index = 0,
                                             )
                                             if (isMultiUser) {
                                                 DropdownImpl(
@@ -235,22 +227,20 @@ fun SuperUserPagerMiuix(
                                                         actions.onToggleShowOnlyPrimaryUserApps()
                                                         showTopPopup.value = false
                                                     },
-                                                    index = 1
+                                                    index = 1,
                                                 )
                                             }
                                         }
-                                    }
+                                    },
                                 )
                                 IconButton(
-                                    onClick = {
-                                        showTopPopup.value = true
-                                    },
-                                    holdDownState = showTopPopup.value
+                                    onClick = { showTopPopup.value = true },
+                                    holdDownState = showTopPopup.value,
                                 ) {
                                     Icon(
                                         imageVector = MiuixIcons.MoreCircle,
                                         tint = colorScheme.onSurface,
-                                        contentDescription = null
+                                        contentDescription = stringResource(R.string.settings),
                                     )
                                 }
                             }
@@ -272,7 +262,9 @@ fun SuperUserPagerMiuix(
                                         if (searchStatus.isCollapsed()) {
                                             Modifier.pointerInput(Unit) {
                                                 detectTapGestures {
-                                                    actions.onSearchStatusChange(searchStatus.copy(current = SearchStatus.Status.EXPANDING))
+                                                    actions.onSearchStatusChange(
+                                                        searchStatus.copy(current = SearchStatus.Status.EXPANDING)
+                                                    )
                                                 }
                                             }
                                         } else Modifier,
@@ -280,7 +272,7 @@ fun SuperUserPagerMiuix(
                             ) {
                                 SearchBarFake(searchStatus.label, dynamicTopPadding)
                             }
-                        }
+                        },
                     )
                 }
             }
@@ -299,9 +291,7 @@ fun SuperUserPagerMiuix(
                     val imeBottomPadding = WindowInsets.ime.asPaddingValues().calculateBottomPadding()
                     if (uiState.recentlyInstalledResults.isNotEmpty()) {
                         LazyColumn(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .overScrollVertical(),
+                            modifier = Modifier.fillMaxSize().overScrollVertical(),
                         ) {
                             item {
                                 Spacer(Modifier.height(6.dp))
@@ -310,34 +300,31 @@ fun SuperUserPagerMiuix(
                                     fontSize = 13.sp,
                                     fontWeight = FontWeight.Medium,
                                     color = colorScheme.onSurfaceVariantSummary,
-                                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp)
+                                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp),
                                 )
                             }
-                            items(uiState.recentlyInstalledResults, key = { it.uid }, contentType = { "recent-group" }) { group ->
+                            items(
+                                uiState.recentlyInstalledResults,
+                                key = { it.uid },
+                                contentType = { "recent-group" },
+                            ) { group ->
                                 Column {
-                                    GroupItem(
-                                        group = group,
-                                        onToggleExpand = {},
-                                    ) {
+                                    GroupItemMiuix(group = group, onToggleExpand = {}) {
                                         actions.onOpenProfile(group)
                                     }
                                     AnimatedVisibility(
                                         visible = group.apps.size > 1,
                                         enter = expandVertically() + fadeIn(),
-                                        exit = shrinkVertically() + fadeOut()
+                                        exit = shrinkVertically() + fadeOut(),
                                     ) {
                                         Column {
-                                            group.apps.forEach { app ->
-                                                SimpleAppItem(app = app)
-                                            }
+                                            group.apps.forEach { app -> SimpleAppItemMiuix(app = app) }
                                             Spacer(Modifier.height(6.dp))
                                         }
                                     }
                                 }
                             }
-                            item {
-                                Spacer(Modifier.height(maxOf(bottomInnerPadding, imeBottomPadding)))
-                            }
+                            item { Spacer(Modifier.height(maxOf(bottomInnerPadding, imeBottomPadding))) }
                         }
                     }
                 },
@@ -345,57 +332,58 @@ fun SuperUserPagerMiuix(
             ) {
                 val imeBottomPadding = WindowInsets.ime.asPaddingValues().calculateBottomPadding()
                 LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .overScrollVertical(),
+                    modifier = Modifier.fillMaxSize().overScrollVertical(),
                 ) {
-                    item {
-                        Spacer(Modifier.height(6.dp))
-                    }
-                    items(uiState.searchResults, key = { it.uid }, contentType = { "group" }) { group ->
-                        val expanded = expandedSearchUids.value.contains(group.uid)
-                        AnimatedVisibility(
-                            visible = uiState.searchResults.isNotEmpty(),
-                            enter = fadeIn() + expandVertically(),
-                            exit = fadeOut() + shrinkVertically()
-                        ) {
-                            Column {
-                                GroupItem(
-                                    group = group,
-                                    onToggleExpand = {
-                                        if (group.apps.size > 1) {
-                                            expandedSearchUids.value =
-                                                if (expanded) expandedSearchUids.value - group.uid else expandedSearchUids.value + group.uid
+                    item { Spacer(Modifier.height(6.dp)) }
+                    if (uiState.searchResults.isEmpty()) {
+                        item { GhostSuEmptyStateMiuix(stringResource(R.string.ghostsu_root_empty_search)) }
+                    } else {
+                        items(uiState.searchResults, key = { it.uid }, contentType = { "group" }) { group ->
+                            val expanded = expandedSearchUids.value.contains(group.uid)
+                            AnimatedVisibility(
+                                visible = uiState.searchResults.isNotEmpty(),
+                                enter = fadeIn() + expandVertically(),
+                                exit = fadeOut() + shrinkVertically(),
+                            ) {
+                                Column {
+                                    GroupItemMiuix(
+                                        group = group,
+                                        onToggleExpand = {
+                                            if (group.apps.size > 1) {
+                                                expandedSearchUids.value = if (expanded) {
+                                                    expandedSearchUids.value - group.uid
+                                                } else {
+                                                    expandedSearchUids.value + group.uid
+                                                }
+                                            }
+                                        },
+                                    ) {
+                                        actions.onOpenProfile(group)
+                                    }
+                                    AnimatedVisibility(
+                                        visible = expanded && group.apps.size > 1,
+                                        enter = expandVertically() + fadeIn(),
+                                        exit = shrinkVertically() + fadeOut(),
+                                    ) {
+                                        Column {
+                                            group.apps.forEach { app ->
+                                                SimpleAppItemMiuix(
+                                                    app = app,
+                                                    matched = group.matchedIdentifiers.contains(app.displayIdentifier),
+                                                )
+                                            }
+                                            Spacer(Modifier.height(6.dp))
                                         }
-                                    },
-                                ) {
-                                    actions.onOpenProfile(group)
-                                }
-                                AnimatedVisibility(
-                                    visible = expanded && group.apps.size > 1,
-                                    enter = expandVertically() + fadeIn(),
-                                    exit = shrinkVertically() + fadeOut()
-                                ) {
-                                    Column {
-                                        group.apps.forEach { app ->
-                                            SimpleAppItem(
-                                                app = app,
-                                                matched = group.matchedIdentifiers.contains(app.displayIdentifier),
-                                            )
-                                        }
-                                        Spacer(Modifier.height(6.dp))
                                     }
                                 }
                             }
                         }
                     }
-                    item {
-                        Spacer(Modifier.height(maxOf(bottomInnerPadding, imeBottomPadding)))
-                    }
+                    item { Spacer(Modifier.height(maxOf(bottomInnerPadding, imeBottomPadding))) }
                 }
             }
         },
-        contentWindowInsets = WindowInsets.systemBars.add(WindowInsets.displayCutout).only(WindowInsetsSides.Horizontal)
+        contentWindowInsets = WindowInsets.systemBars.add(WindowInsets.displayCutout).only(WindowInsetsSides.Horizontal),
     ) { innerPadding ->
         val layoutDirection = LocalLayoutDirection.current
         val lazyListState = rememberLazyListState()
@@ -418,7 +406,6 @@ fun SuperUserPagerMiuix(
                 stringResource(R.string.refresh_refresh),
                 stringResource(R.string.refresh_complete),
             )
-
             val expandedUids = remember { mutableStateOf(setOf<Int>()) }
             PullToRefresh(
                 isRefreshing = uiState.isRefreshing,
@@ -431,7 +418,7 @@ fun SuperUserPagerMiuix(
                 contentPadding = PaddingValues(
                     top = innerPadding.calculateTopPadding() + 6.dp,
                     start = innerPadding.calculateStartPadding(layoutDirection),
-                    end = innerPadding.calculateEndPadding(layoutDirection)
+                    end = innerPadding.calculateEndPadding(layoutDirection),
                 ),
             ) {
                 Box(modifier = if (backdrop != null) Modifier.layerBackdrop(backdrop) else Modifier) {
@@ -445,41 +432,55 @@ fun SuperUserPagerMiuix(
                         contentPadding = PaddingValues(
                             top = innerPadding.calculateTopPadding() + 6.dp,
                             start = innerPadding.calculateStartPadding(layoutDirection),
-                            end = innerPadding.calculateEndPadding(layoutDirection)
+                            end = innerPadding.calculateEndPadding(layoutDirection),
                         ),
                         overscrollEffect = null,
                     ) {
-                        items(uiState.groupedApps, key = { it.uid }, contentType = { "group" }) { group ->
-                            val expanded = expandedUids.value.contains(group.uid)
-                            Column {
-                                GroupItem(
-                                    group = group,
-                                    onToggleExpand = {
-                                        if (group.apps.size > 1) {
-                                            expandedUids.value =
-                                                if (expanded) expandedUids.value - group.uid else expandedUids.value + group.uid
-                                        }
+                        item { GhostSuRootIntroMiuix() }
+                        item {
+                            Text(
+                                text = stringResource(R.string.ghostsu_root_apps),
+                                fontSize = 17.sp,
+                                fontWeight = FontWeight(750),
+                                color = colorScheme.onSurface,
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                            )
+                        }
+                        if (uiState.hasLoaded && uiState.groupedApps.isEmpty()) {
+                            item { GhostSuEmptyStateMiuix(stringResource(R.string.ghostsu_root_empty)) }
+                        } else {
+                            items(uiState.groupedApps, key = { it.uid }, contentType = { "group" }) { group ->
+                                val expanded = expandedUids.value.contains(group.uid)
+                                Column {
+                                    GroupItemMiuix(
+                                        group = group,
+                                        onToggleExpand = {
+                                            if (group.apps.size > 1) {
+                                                expandedUids.value = if (expanded) {
+                                                    expandedUids.value - group.uid
+                                                } else {
+                                                    expandedUids.value + group.uid
+                                                }
+                                            }
+                                        },
+                                    ) {
+                                        actions.onOpenProfile(group)
                                     }
-                                ) {
-                                    actions.onOpenProfile(group)
-                                }
-                                AnimatedVisibility(
-                                    visible = expanded && group.apps.size > 1,
-                                    enter = expandVertically() + fadeIn(),
-                                    exit = shrinkVertically() + fadeOut()
-                                ) {
-                                    Column {
-                                        group.apps.forEach { app ->
-                                            SimpleAppItem(app = app)
+                                    AnimatedVisibility(
+                                        visible = expanded && group.apps.size > 1,
+                                        enter = expandVertically() + fadeIn(),
+                                        exit = shrinkVertically() + fadeOut(),
+                                    ) {
+                                        Column {
+                                            group.apps.forEach { app -> SimpleAppItemMiuix(app = app) }
+                                            Spacer(Modifier.height(6.dp))
                                         }
-                                        Spacer(Modifier.height(6.dp))
                                     }
                                 }
                             }
                         }
-                        item {
-                            Spacer(Modifier.height(bottomInnerPadding))
-                        }
+                        item { GhostSuRootDisclaimerMiuix() }
+                        item { Spacer(Modifier.height(bottomInnerPadding)) }
                     }
                 }
             }
@@ -488,7 +489,80 @@ fun SuperUserPagerMiuix(
 }
 
 @Composable
-private fun SimpleAppItem(
+private fun GhostSuRootIntroMiuix() {
+    Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Image(
+                painter = painterResource(R.drawable.ghost_su_logo),
+                contentDescription = stringResource(R.string.ghostsu_root_brand_name),
+                modifier = Modifier
+                    .size(50.dp)
+                    .clip(RoundedCornerShape(15.dp)),
+            )
+            Column {
+                Text(
+                    text = stringResource(R.string.ghostsu_root_brand_name),
+                    fontSize = 21.sp,
+                    fontWeight = FontWeight(750),
+                    color = colorScheme.onSurface,
+                )
+                Text(
+                    text = stringResource(R.string.ghostsu_root_brand_subtitle),
+                    fontSize = 11.sp,
+                    color = colorScheme.onSurfaceVariantSummary,
+                )
+            }
+        }
+        Text(
+            text = stringResource(R.string.ghostsu_root_title),
+            fontSize = 38.sp,
+            fontWeight = FontWeight(800),
+            color = colorScheme.onSurface,
+            modifier = Modifier.padding(top = 22.dp),
+        )
+        Text(
+            text = stringResource(R.string.ghostsu_root_subtitle),
+            fontSize = 16.sp,
+            color = colorScheme.onSurfaceVariantSummary,
+            modifier = Modifier.padding(top = 3.dp),
+        )
+    }
+}
+
+@Composable
+private fun GhostSuEmptyStateMiuix(message: String) {
+    Card(
+        modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
+        insideMargin = PaddingValues(horizontal = 18.dp, vertical = 22.dp),
+    ) {
+        Text(
+            text = message,
+            fontSize = 15.sp,
+            fontWeight = FontWeight(650),
+            color = colorScheme.onSurface,
+        )
+    }
+}
+
+@Composable
+private fun GhostSuRootDisclaimerMiuix() {
+    Card(
+        modifier = Modifier.padding(horizontal = 12.dp, vertical = 16.dp),
+        insideMargin = PaddingValues(horizontal = 18.dp, vertical = 16.dp),
+    ) {
+        Text(
+            text = stringResource(R.string.ghostsu_root_disclaimer),
+            fontSize = 14.sp,
+            color = colorScheme.onSurfaceVariantSummary,
+        )
+    }
+}
+
+@Composable
+private fun SimpleAppItemMiuix(
     app: AppInfo,
     matched: Boolean = false,
 ) {
@@ -500,11 +574,10 @@ private fun SimpleAppItem(
                 .height(24.dp)
                 .align(Alignment.CenterVertically)
                 .clip(RoundedCornerShape(16.dp))
-                .background(if (matched) colorScheme.primary else colorScheme.primaryContainer)
+                .background(if (matched) colorScheme.primary else colorScheme.primaryContainer),
         )
         Card(
-            modifier = Modifier
-                .padding(start = 6.dp, end = 12.dp, bottom = 6.dp)
+            modifier = Modifier.padding(start = 6.dp, end = 12.dp, bottom = 6.dp),
         ) {
             BasicComponent(
                 title = app.label,
@@ -513,70 +586,72 @@ private fun SimpleAppItem(
                     AppIconImage(
                         packageInfo = app.packageInfo,
                         label = app.label,
-                        modifier = Modifier
-                            .padding(end = 2.dp)
-                            .size(40.dp)
+                        modifier = Modifier.padding(end = 2.dp).size(40.dp),
                     )
                 },
-                insideMargin = PaddingValues(horizontal = 9.dp)
+                insideMargin = PaddingValues(horizontal = 9.dp),
             )
         }
     }
 }
 
 @Composable
-private fun GroupItem(
+private fun GroupItemMiuix(
     group: GroupedApps,
     onToggleExpand: () -> Unit,
     onClickPrimary: () -> Unit,
 ) {
-    val isInDarkTheme = isInDarkTheme()
-    val bg = colorScheme.secondaryContainer.copy(alpha = 0.8f)
-    val rootBg = colorScheme.tertiaryContainer.copy(alpha = 0.6f)
-    val unmountBg = if (isInDarkTheme) Color.White.copy(alpha = 0.4f) else Color.Black.copy(alpha = 0.3f)
-    val fg = colorScheme.onSecondaryContainer
-    val rootFg = colorScheme.onTertiaryContainer.copy(alpha = 0.8f)
-    val unmountFg = if (isInDarkTheme) Color.Black.copy(alpha = 0.4f) else Color.White.copy(alpha = 0.8f)
-
-    val userId = group.uid / 100000
-    val tags = remember(group.anyAllowSu, group.shouldUmount, group.anyCustom, userId) {
-        buildList {
-            if (group.anyAllowSu) add(StatusMeta("ROOT", rootBg, rootFg))
-            if (group.shouldUmount) add(StatusMeta("UMOUNT", unmountBg, unmountFg))
-            if (group.anyCustom) add(StatusMeta("CUSTOM", bg, fg))
-            if (userId != 0) add(StatusMeta("USER $userId", bg, fg))
+    val tags = buildList {
+        if (group.anyAllowSu) {
+            add(
+                StatusMeta(
+                    label = stringResource(R.string.ghostsu_root_status_root),
+                    bg = colorScheme.primaryContainer,
+                    fg = colorScheme.onPrimaryContainer,
+                )
+            )
+        } else {
+            add(
+                StatusMeta(
+                    label = stringResource(R.string.ghostsu_root_status_no_root),
+                    bg = colorScheme.surfaceContainerHigh,
+                    fg = colorScheme.onSurfaceVariantSummary,
+                )
+            )
+        }
+        if (group.anyCustom) {
+            add(
+                StatusMeta(
+                    label = stringResource(R.string.ghostsu_root_status_custom),
+                    bg = colorScheme.secondaryContainer,
+                    fg = colorScheme.onSecondaryContainer,
+                )
+            )
         }
     }
     Card(
         modifier = Modifier
             .padding(horizontal = 12.dp)
-            .padding(bottom = 12.dp),
+            .padding(bottom = 10.dp),
         onClick = onClickPrimary,
         onLongPress = if (group.apps.size > 1) onToggleExpand else null,
         showIndication = true,
-        insideMargin = PaddingValues(start = 10.dp, end = 16.dp, top = 8.dp, bottom = 8.dp)
+        insideMargin = PaddingValues(start = 10.dp, end = 14.dp, top = 9.dp, bottom = 9.dp),
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             AppIconImage(
                 packageInfo = group.primary.packageInfo,
                 label = group.primary.label,
-                modifier = Modifier
-                    .padding(end = 10.dp)
-                    .size(48.dp)
+                modifier = Modifier.padding(end = 10.dp).size(48.dp),
             )
-            Column(
-                modifier = Modifier
-                    .weight(1f),
-            ) {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = if (group.apps.size > 1) ownerNameForUid(group.uid) else group.primary.label,
                     modifier = Modifier.basicMarquee(),
-                    fontWeight = FontWeight(550),
+                    fontWeight = FontWeight(650),
                     color = colorScheme.onSurface,
                     maxLines = 1,
-                    softWrap = false
+                    softWrap = false,
                 )
                 Text(
                     text = if (group.apps.size > 1) {
@@ -584,28 +659,24 @@ private fun GroupItem(
                     } else {
                         group.primary.displayIdentifier
                     },
-                    modifier = Modifier
-                        .basicMarquee(),
+                    modifier = Modifier.basicMarquee(),
                     fontSize = 12.sp,
-                    fontWeight = FontWeight(550),
                     color = colorScheme.onSurfaceVariantSummary,
                     maxLines = 1,
-                    softWrap = false
+                    softWrap = false,
                 )
             }
-            if (tags.isNotEmpty()) {
-                Column(
-                    modifier = Modifier.padding(start = 16.dp),
-                    horizontalAlignment = Alignment.End,
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    tags.forEach { tag ->
-                        StatusTag(
-                            label = tag.label,
-                            backgroundColor = tag.bg,
-                            contentColor = tag.fg
-                        )
-                    }
+            Column(
+                modifier = Modifier.padding(start = 12.dp),
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                tags.forEach { tag ->
+                    StatusTag(
+                        label = tag.label,
+                        backgroundColor = tag.bg,
+                        contentColor = tag.fg,
+                    )
                 }
             }
             val layoutDirection = LocalLayoutDirection.current

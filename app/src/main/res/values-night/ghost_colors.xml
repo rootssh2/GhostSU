@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ghost_bg">#FF0E1319</color>
+    <color name="ghost_text_primary">#FFE6E8EB</color>
+    <color name="ghost_text_secondary">#FF9CA3AF</color>
+    <color name="ghost_accent">#FF3B82F6</color>
+</resources>

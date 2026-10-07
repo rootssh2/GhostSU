@@ -1,6 +1,9 @@
 package me.weishu.kernelsu.ui.screen.settings
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -11,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -29,17 +33,21 @@ import androidx.compose.material.icons.rounded.LayersClear
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.RestartAlt
 import androidx.compose.material.icons.rounded.Security
-import androidx.compose.material.icons.rounded.SystemUpdate
 import androidx.compose.material.icons.rounded.SystemUpdateAlt
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.annotation.StringRes
 import me.weishu.kernelsu.R
 import me.weishu.kernelsu.ui.UiMode
 import me.weishu.kernelsu.ui.component.KsuIsValid
@@ -53,6 +61,7 @@ import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.blur.layerBackdrop
 import top.yukonga.miuix.kmp.preference.ArrowPreference
@@ -106,43 +115,8 @@ fun SettingPagerMiuix(
                 overscrollEffect = null,
             ) {
                 item {
-                    Card(
-                        modifier = Modifier
-                            .padding(top = 12.dp)
-                            .fillMaxWidth(),
-                    ) {
-                        SwitchPreference(
-                            title = stringResource(id = R.string.settings_check_update),
-                            summary = stringResource(id = R.string.settings_check_update_summary),
-                            startAction = {
-                                Icon(
-                                    Icons.Rounded.SystemUpdate,
-                                    modifier = Modifier.padding(end = 6.dp),
-                                    contentDescription = stringResource(id = R.string.settings_check_update),
-                                    tint = colorScheme.onBackground
-                                )
-                            },
-                            checked = uiState.checkUpdate,
-                            onCheckedChange = actions.onSetCheckUpdate
-                        )
-                        KsuIsValid {
-                            SwitchPreference(
-                                title = stringResource(id = R.string.settings_module_check_update),
-                                summary = stringResource(id = R.string.settings_check_update_summary),
-                                startAction = {
-                                    Icon(
-                                        Icons.Rounded.SystemUpdateAlt,
-                                        modifier = Modifier.padding(end = 6.dp),
-                                        contentDescription = stringResource(id = R.string.settings_check_update),
-                                        tint = colorScheme.onBackground
-                                    )
-                                },
-                                checked = uiState.checkModuleUpdate,
-                                onCheckedChange = actions.onSetCheckModuleUpdate
-                            )
-                        }
-                    }
-
+                    SettingsBrandHeader()
+                    SettingsSectionTitle(R.string.ghostsu_settings_section_appearance)
                     Card(
                         modifier = Modifier
                             .padding(top = 12.dp)
@@ -178,6 +152,31 @@ fun SettingPagerMiuix(
                         )
                     }
 
+                    SettingsSectionTitle(R.string.ghostsu_settings_section_modules)
+                    KsuIsValid {
+                        Card(
+                            modifier = Modifier
+                                .padding(top = 12.dp)
+                                .fillMaxWidth(),
+                        ) {
+                            SwitchPreference(
+                                title = stringResource(id = R.string.settings_module_check_update),
+                                summary = stringResource(id = R.string.ghostsu_settings_module_update_summary),
+                                startAction = {
+                                    Icon(
+                                        Icons.Rounded.SystemUpdateAlt,
+                                        modifier = Modifier.padding(end = 6.dp),
+                                        contentDescription = stringResource(id = R.string.settings_module_check_update),
+                                        tint = colorScheme.onBackground
+                                    )
+                                },
+                                checked = uiState.checkModuleUpdate,
+                                onCheckedChange = actions.onSetCheckModuleUpdate
+                            )
+                        }
+                    }
+
+                    SettingsSectionTitle(R.string.ghostsu_settings_section_root_security)
                     KsuIsValid {
                         Card(
                             modifier = Modifier
@@ -335,6 +334,7 @@ fun SettingPagerMiuix(
                             )
                         }
 
+                        SettingsSectionTitle(R.string.ghostsu_settings_section_advanced)
                         Card(
                             modifier = Modifier
                                 .padding(top = 12.dp)
@@ -414,6 +414,7 @@ fun SettingPagerMiuix(
                         }
                     }
 
+                    SettingsSectionTitle(R.string.ghostsu_settings_section_information)
                     Card(
                         modifier = Modifier
                             .padding(vertical = 12.dp)
@@ -450,9 +451,53 @@ fun SettingPagerMiuix(
                             onClick = actions.onOpenAbout,
                         )
                     }
+                    Text(
+                        text = stringResource(R.string.ghostsu_settings_kernel_notice),
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                        color = colorScheme.onSurfaceVariantSummary,
+                        fontSize = 12.sp,
+                    )
                     Spacer(Modifier.height(bottomInnerPadding))
                 }
             }
         }
     }
+}
+
+@Composable
+private fun SettingsBrandHeader() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 4.dp, bottom = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Image(
+            painter = painterResource(R.drawable.ghost_su_logo),
+            contentDescription = stringResource(R.string.ghost_app_name),
+            modifier = Modifier.size(44.dp),
+        )
+        Column(modifier = Modifier.padding(start = 12.dp)) {
+            Text(
+                text = stringResource(R.string.ghost_app_name),
+                fontWeight = FontWeight.SemiBold,
+            )
+            Text(
+                text = stringResource(R.string.ghostsu_settings_subtitle),
+                color = colorScheme.onSurfaceVariantSummary,
+                fontSize = 12.sp,
+            )
+        }
+    }
+}
+
+@Composable
+private fun SettingsSectionTitle(@StringRes titleRes: Int) {
+    Text(
+        text = stringResource(titleRes),
+        modifier = Modifier.padding(start = 8.dp, top = 12.dp, bottom = 6.dp),
+        color = colorScheme.primary,
+        fontWeight = FontWeight.Bold,
+        fontSize = 12.sp,
+    )
 }

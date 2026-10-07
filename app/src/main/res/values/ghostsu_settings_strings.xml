@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ghostsu_settings_subtitle">Ghost SU manager</string>
+    <string name="ghostsu_settings_section_appearance">Appearance</string>
+    <string name="ghostsu_settings_section_modules">Modules</string>
+    <string name="ghostsu_settings_section_root_security">Root and security</string>
+    <string name="ghostsu_settings_section_advanced">Advanced options</string>
+    <string name="ghostsu_settings_section_information">Information and diagnostics</string>
+    <string name="ghostsu_settings_kernel_notice">Root features depend on kernel support. The Ghost tab remains available after a restart.</string>
+    <string name="ghostsu_settings_module_update_summary">Check for updates to installed modules.</string>
+    <string name="ghostsu_about_creator">Creator · @Root2022</string>
+    <string name="ghostsu_about_description">An independent KernelSU manager with a Ghost tab to reactivate temporary root when needed.</string>
+    <string name="ghostsu_about_licenses">KernelSU and GhostLock credits and license texts are included in this app.</string>
+    <string name="ghostsu_ghost_status_ready">Ready to activate</string>
+    <string name="ghostsu_ghost_status_ready_summary">Compatible kernel · device profile ready</string>
+    <string name="ghostsu_ghost_status_active">Temporary root active</string>
+    <string name="ghostsu_ghost_status_active_summary">Ghost SU recognized by KernelSU</string>
+    <string name="ghostsu_ghost_action_active">Root already active</string>
+</resources>

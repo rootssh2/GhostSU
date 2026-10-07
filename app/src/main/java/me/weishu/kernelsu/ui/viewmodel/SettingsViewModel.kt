@@ -32,7 +32,6 @@ class SettingsViewModel(
 
     fun refresh() {
         viewModelScope.launch {
-            val checkUpdate = repo.checkUpdate
             val checkModuleUpdate = repo.checkModuleUpdate
             val themeMode = repo.themeMode
             val miuixMonet = repo.miuixMonet
@@ -75,7 +74,6 @@ class SettingsViewModel(
             _uiState.update {
                 it.copy(
                     uiMode = uiMode,
-                    checkUpdate = checkUpdate,
                     checkModuleUpdate = checkModuleUpdate,
                     themeMode = themeMode,
                     miuixMonet = miuixMonet,
@@ -111,11 +109,6 @@ class SettingsViewModel(
                 )
             }
         }
-    }
-
-    fun setCheckUpdate(enabled: Boolean) {
-        repo.checkUpdate = enabled
-        _uiState.update { it.copy(checkUpdate = enabled) }
     }
 
     fun setUiMode(mode: String) {
