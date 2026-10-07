@@ -43,14 +43,12 @@ import androidx.compose.material3.DropdownMenuItem as MaterialDropdownMenuItem
 import androidx.compose.material3.Icon as MaterialIcon
 import androidx.compose.material3.LargeTopAppBar as MaterialLargeTopAppBar
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet as MaterialModalBottomSheet
-import androidx.compose.material3.SheetValue as MaterialSheetValue
 import androidx.compose.material3.OutlinedButton as MaterialOutlinedButton
 import androidx.compose.material3.Scaffold as MaterialScaffold
+import androidx.compose.material3.Surface as MaterialSurface
 import androidx.compose.material3.Text as MaterialText
 import androidx.compose.material3.TopAppBarDefaults as MaterialTopAppBarDefaults
 import androidx.compose.material3.IconButton as MaterialIconButton
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -64,6 +62,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.LocalWindowInfo
@@ -75,6 +74,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import me.weishu.kernelsu.Natives
@@ -354,7 +355,6 @@ internal fun GhostlockApp(
         initialValue = false,
         key1 = state.running,
         key2 = state.executionSheetVisible,
-        key3 = state.logLines.size,
     ) {
         value = withContext(Dispatchers.IO) {
             runCatching { Natives.isManager && rootAvailable() }.getOrDefault(false)
@@ -897,58 +897,67 @@ private fun MaterialGhostlockExecutionSheet(
     state: GhostlockUiState,
     actions: GhostlockActions,
 ) {
-    val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true,
-        confirmValueChange = { target ->
-            target != MaterialSheetValue.Hidden || state.executionSheetDismissible
-        },
-    )
+    // A fixed-size dialog is independent of the pager's nested scroll and cannot
+    // bounce between sheet anchors when the native exploit appends log lines.
+    val dialogHeight = (LocalConfiguration.current.screenHeightDp.dp * 0.68f)
+        .coerceAtMost(560.dp)
     val listState = rememberLazyListState()
     LaunchedEffect(state.logLines.size) {
         if (state.logLines.isNotEmpty()) listState.scrollToItem(state.logLines.lastIndex)
     }
-    MaterialModalBottomSheet(
+    Dialog(
         onDismissRequest = { if (state.executionSheetDismissible) actions.onCloseExecutionSheet() },
-        sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        properties = DialogProperties(
+            dismissOnBackPress = state.executionSheetDismissible,
+            dismissOnClickOutside = state.executionSheetDismissible,
+        ),
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-            verticalAlignment = Alignment.CenterVertically,
+        MaterialSurface(
+            modifier = Modifier.fillMaxWidth().height(dialogHeight),
+            color = MaterialTheme.colorScheme.surfaceContainer,
+            shape = RoundedCornerShape(24.dp),
         ) {
-            MaterialText(
-                text = stringResource(R.string.ghost_log_title),
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.weight(1f),
-            )
-            MaterialIconButton(onClick = actions::onCopyLogs) {
-                MaterialIcon(Icons.Filled.ContentCopy, contentDescription = stringResource(R.string.ghost_action_copy))
-            }
-            MaterialIconButton(
-                onClick = actions::onCloseExecutionSheet,
-                enabled = state.executionSheetDismissible,
+            Column(
+                modifier = Modifier.fillMaxSize(),
             ) {
-                MaterialIcon(Icons.Filled.Close, contentDescription = stringResource(R.string.ghost_action_close))
-            }
-        }
-        SelectionContainer {
-            LazyColumn(
-                state = listState,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 240.dp, max = 520.dp)
-                    .background(Color(0xFF0B1220))
-                    .navigationBarsPadding()
-                    .padding(12.dp),
-            ) {
-                items(state.logLines) { line ->
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
                     MaterialText(
-                        text = line.text.trimEnd('\r', '\n'),
-                        color = lineColor(line.color),
-                        fontFamily = FontFamily.Monospace,
-                        fontSize = 12.sp,
-                        lineHeight = 16.sp,
+                        text = stringResource(R.string.ghost_log_title),
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.weight(1f),
                     )
+                    MaterialIconButton(onClick = actions::onCopyLogs) {
+                        MaterialIcon(Icons.Filled.ContentCopy, contentDescription = stringResource(R.string.ghost_action_copy))
+                    }
+                    MaterialIconButton(
+                        onClick = actions::onCloseExecutionSheet,
+                        enabled = state.executionSheetDismissible,
+                    ) {
+                        MaterialIcon(Icons.Filled.Close, contentDescription = stringResource(R.string.ghost_action_close))
+                    }
+                }
+                SelectionContainer {
+                    LazyColumn(
+                        state = listState,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .background(Color(0xFF0B1220))
+                            .padding(12.dp),
+                    ) {
+                        items(state.logLines) { line ->
+                            MaterialText(
+                                text = line.text.trimEnd('\r', '\n'),
+                                color = lineColor(line.color),
+                                fontFamily = FontFamily.Monospace,
+                                fontSize = 12.sp,
+                                lineHeight = 16.sp,
+                            )
+                        }
+                    }
                 }
             }
         }
