@@ -899,8 +899,10 @@ private fun MaterialGhostlockExecutionSheet(
 ) {
     // A fixed-size dialog is independent of the pager's nested scroll and cannot
     // bounce between sheet anchors when the native exploit appends log lines.
-    val dialogHeight = (LocalConfiguration.current.screenHeightDp.dp * 0.68f)
-        .coerceAtMost(560.dp)
+    // Miuix caps its LogPanel at 520 dp. Reserve 56 dp for Material's title
+    // and actions while respecting the available height on smaller devices.
+    val dialogHeight = (LocalConfiguration.current.screenHeightDp.dp * 0.82f)
+        .coerceAtMost(576.dp)
     val listState = rememberLazyListState()
     LaunchedEffect(state.logLines.size) {
         if (state.logLines.isNotEmpty()) listState.scrollToItem(state.logLines.lastIndex)
@@ -910,10 +912,11 @@ private fun MaterialGhostlockExecutionSheet(
         properties = DialogProperties(
             dismissOnBackPress = state.executionSheetDismissible,
             dismissOnClickOutside = state.executionSheetDismissible,
+            usePlatformDefaultWidth = false,
         ),
     ) {
         MaterialSurface(
-            modifier = Modifier.fillMaxWidth().height(dialogHeight),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp).height(dialogHeight),
             color = MaterialTheme.colorScheme.surfaceContainer,
             shape = RoundedCornerShape(24.dp),
         ) {
