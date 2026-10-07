@@ -247,7 +247,7 @@ fun ColorPaletteScreenMaterial(
                             SegmentedDropdownItem(
                                 icon = Icons.Rounded.Style,
                                 title = stringResource(R.string.settings_color_style),
-                                items = styles.map { it.name },
+                                items = styles.map { paletteStyleLabel(it) },
                                 selectedIndex = styles.indexOf(colorStyle),
                                 onItemSelected = { index ->
                                     actions.onSetColorStyle(styles[index].name)
@@ -259,7 +259,7 @@ fun ColorPaletteScreenMaterial(
                             SegmentedDropdownItem(
                                 icon = Icons.Rounded.DesignServices,
                                 title = stringResource(R.string.settings_color_spec),
-                                items = specs.map { it.name },
+                                items = specs.map { colorSpecLabel(it) },
                                 selectedIndex = specs.indexOf(colorSpec).coerceAtLeast(0),
                                 onItemSelected = { index ->
                                     actions.onSetColorSpec(specs[index].name)

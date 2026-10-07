@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.Article
 import androidx.compose.material.icons.automirrored.rounded.Rule
@@ -39,6 +40,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
@@ -475,7 +477,7 @@ private fun SettingsBrandHeader() {
         Image(
             painter = painterResource(R.drawable.ghost_su_logo),
             contentDescription = stringResource(R.string.ghost_app_name),
-            modifier = Modifier.size(44.dp),
+            modifier = Modifier.size(44.dp).clip(RoundedCornerShape(13.dp)),
         )
         Column(modifier = Modifier.padding(start = 12.dp)) {
             Text(

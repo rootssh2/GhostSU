@@ -255,7 +255,7 @@ fun ColorPaletteScreenMiuix(
                                                     tint = colorScheme.onBackground
                                                 )
                                             },
-                                            items = styles.map { it.name },
+                                            items = styles.map { paletteStyleLabel(it) },
                                             selectedIndex = styles.indexOfFirst { it.name == uiState.colorStyle }.coerceAtLeast(0),
                                             onSelectedIndexChange = { index ->
                                                 actions.onSetColorStyle(styles[index].name)
@@ -273,7 +273,7 @@ fun ColorPaletteScreenMiuix(
                                                     tint = colorScheme.onBackground
                                                 )
                                             },
-                                            items = specs.map { it.name },
+                                            items = specs.map { colorSpecLabel(it) },
                                             selectedIndex = specs.indexOfFirst { it.name == uiState.colorSpec }.coerceAtLeast(0),
                                             onSelectedIndexChange = { index ->
                                                 actions.onSetColorSpec(specs[index].name)

@@ -704,7 +704,7 @@ private fun ModuleMiuixIntro(
             Image(
                 painter = painterResource(R.drawable.ghost_su_logo),
                 contentDescription = stringResource(R.string.ghost_app_name),
-                modifier = Modifier.size(46.dp),
+                modifier = Modifier.size(46.dp).clip(RoundedCornerShape(14.dp)),
             )
             Column(
                 modifier = Modifier

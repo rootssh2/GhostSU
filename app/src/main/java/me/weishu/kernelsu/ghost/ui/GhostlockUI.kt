@@ -526,7 +526,7 @@ private fun MaterialMainScreen(
                     Image(
                         painter = painterResource(R.drawable.ghost_su_logo),
                         contentDescription = null,
-                        modifier = Modifier.padding(start = 16.dp).size(34.dp),
+                        modifier = Modifier.padding(start = 16.dp).size(34.dp).clip(RoundedCornerShape(10.dp)),
                     )
                 },
                 scrollBehavior = scrollBehavior,
@@ -594,7 +594,7 @@ private fun MaterialBrandHeader(state: GhostlockUiState) {
         Image(
             painter = painterResource(R.drawable.ghost_su_logo),
             contentDescription = null,
-            modifier = Modifier.size(58.dp),
+            modifier = Modifier.size(58.dp).clip(RoundedCornerShape(17.dp)),
         )
         Column(modifier = Modifier.padding(start = 12.dp)) {
             MaterialText(

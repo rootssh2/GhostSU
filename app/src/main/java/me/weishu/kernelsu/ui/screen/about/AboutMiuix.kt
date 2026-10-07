@@ -10,10 +10,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -58,7 +60,7 @@ fun AboutScreenMiuix(state: AboutUiState, actions: AboutScreenActions) {
             Image(
                 painter = painterResource(R.drawable.ghost_su_logo),
                 contentDescription = state.appName,
-                modifier = Modifier.size(108.dp),
+                modifier = Modifier.size(108.dp).clip(RoundedCornerShape(30.dp)),
             )
             Text(state.appName, fontSize = 32.sp, fontWeight = FontWeight.Bold)
             Text(
