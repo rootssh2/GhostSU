@@ -278,16 +278,6 @@ fun ModulePagerMaterial(
                 onSearchTextChange = actions.onSearchTextChange,
                 onClearClick = actions.onClearSearch,
                 snackbarHostState = snackBarHost,
-                navigationIcon = {
-                    IconButton(
-                        onClick = { actions.onOpenRepo() }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.Cloud,
-                            contentDescription = stringResource(id = R.string.module_repos)
-                        )
-                    }
-                },
                 actions = {
                     var showDropdown by remember { mutableStateOf(false) }
                     IconButton(
@@ -485,7 +475,6 @@ fun ModulePagerMaterial(
 @Composable
 private fun ModuleMaterialIntro(
     isSafeMode: Boolean,
-    onOpenRepo: () -> Unit,
 ) {
     val isLateLoad = Natives.isLateLoadMode
     val isKernelSuManager = Natives.isManager
@@ -525,13 +514,6 @@ private fun ModuleMaterialIntro(
                     text = stringResource(R.string.ghostsu_module_manager_label),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-            OutlinedButton(onClick = onOpenRepo) {
-                Icon(Icons.Outlined.Cloud, contentDescription = null, modifier = Modifier.size(18.dp))
-                Text(
-                    text = stringResource(R.string.ghostsu_module_catalog),
-                    modifier = Modifier.padding(start = 6.dp),
                 )
             }
         }
@@ -645,7 +627,6 @@ private fun ModuleList(
             item(key = "module_intro", contentType = "module_intro") {
                 ModuleMaterialIntro(
                     isSafeMode = isSafeMode,
-                    onOpenRepo = actions.onOpenRepo,
                 )
             }
             item(key = "module_section_header", contentType = "module_section_header") {

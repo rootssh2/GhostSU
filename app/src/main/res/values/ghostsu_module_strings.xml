@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="ghostsu_module_manager_label">GERENCIADOR</string>
-    <string name="ghostsu_module_catalog">Catálogo</string>
     <string name="ghostsu_module_title">Módulos</string>
     <string name="ghostsu_module_subtitle">Extensões instaladas e controle da sessão.</string>
-    <string name="ghostsu_module_temporary_mode">MODO TEMPORÁRIO</string>
-    <string name="ghostsu_module_kernel_su">KernelSU</string>
+    <string name="ghostsu_module_temporary_mode">TEMPORARY MODE</string>
+    <string name="ghostsu_module_kernel_su">Ghost SU</string>
     <string name="ghostsu_module_available">Disponível</string>
     <string name="ghostsu_module_active">Ativo</string>
     <string name="ghostsu_module_disabled">Desativado</string>

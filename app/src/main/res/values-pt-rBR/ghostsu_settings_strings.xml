@@ -14,6 +14,6 @@
     <string name="ghostsu_ghost_status_ready">Pronto para ativar</string>
     <string name="ghostsu_ghost_status_ready_summary">Kernel compatível · perfil do dispositivo pronto</string>
     <string name="ghostsu_ghost_status_active">Root temporário ativo</string>
-    <string name="ghostsu_ghost_status_active_summary">Ghost SU reconhecido pelo KernelSU</string>
+    <string name="ghostsu_ghost_status_active_summary">Acesso temporário ativo nesta sessão</string>
     <string name="ghostsu_ghost_action_active">Root já ativo</string>
 </resources>

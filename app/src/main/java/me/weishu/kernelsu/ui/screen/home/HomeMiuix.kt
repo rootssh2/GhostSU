@@ -32,7 +32,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -52,9 +51,7 @@ import me.weishu.kernelsu.ui.util.BlurredBar
 import me.weishu.kernelsu.ui.util.rememberBlurBackdrop
 import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.CardDefaults
-import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.Scaffold
-import top.yukonga.miuix.kmp.basic.ScrollBehavior
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextButton
 import top.yukonga.miuix.kmp.basic.TopAppBar
@@ -69,11 +66,10 @@ import top.yukonga.miuix.kmp.utils.scrollEndHaptic
 
 @Composable
 fun HomePagerMiuix(state: HomeUiState, actions: HomeActions, bottomInnerPadding: Dp) {
-    val scrollBehavior = MiuixScrollBehavior()
     val backdrop = rememberBlurBackdrop(LocalEnableBlur.current)
     val barColor = if (backdrop != null) Color.Transparent else colorScheme.surface
     Scaffold(
-        topBar = { TopBar(scrollBehavior, backdrop, barColor) },
+        topBar = { TopBar(backdrop, barColor) },
         popupHost = { },
         contentWindowInsets = WindowInsets.systemBars.add(WindowInsets.displayCutout).only(WindowInsetsSides.Horizontal),
     ) { innerPadding ->
@@ -83,7 +79,6 @@ fun HomePagerMiuix(state: HomeUiState, actions: HomeActions, bottomInnerPadding:
                     .fillMaxHeight()
                     .scrollEndHaptic()
                     .overScrollVertical()
-                    .nestedScroll(scrollBehavior.nestedScrollConnection)
                     .padding(horizontal = 12.dp),
                 contentPadding = innerPadding,
                 overscrollEffect = null,
@@ -111,13 +106,12 @@ fun HomePagerMiuix(state: HomeUiState, actions: HomeActions, bottomInnerPadding:
 }
 
 @Composable
-private fun TopBar(scrollBehavior: ScrollBehavior, backdrop: LayerBackdrop?, barColor: Color) {
+private fun TopBar(backdrop: LayerBackdrop?, barColor: Color) {
     BlurredBar(backdrop) {
         TopAppBar(
             color = barColor,
             title = "",
             actions = { RebootListPopupMiuix() },
-            scrollBehavior = scrollBehavior,
         )
     }
 }

@@ -313,17 +313,6 @@ fun ModulePagerMiuix(
                                 )
                             }
                         },
-                        navigationIcon = {
-                            IconButton(
-                                onClick = actions.onOpenRepo,
-                            ) {
-                                Icon(
-                                    imageVector = MiuixIcons.Download,
-                                    tint = colorScheme.onSurface,
-                                    contentDescription = null
-                                )
-                            }
-                        },
                         scrollBehavior = scrollBehavior,
                         bottomContent = {
                             Box(
@@ -693,7 +682,6 @@ private fun ModuleShortcutDialog(
 @Composable
 private fun ModuleMiuixIntro(
     isSafeMode: Boolean,
-    onOpenRepo: () -> Unit,
 ) {
     val isLateLoad = Natives.isLateLoadMode
     val active = !isSafeMode && Natives.isManager
@@ -735,10 +723,6 @@ private fun ModuleMiuixIntro(
                     color = colorScheme.onSurfaceVariantSummary,
                 )
             }
-            TextButton(
-                text = stringResource(R.string.ghostsu_module_catalog),
-                onClick = onOpenRepo,
-            )
         }
 
         Text(
@@ -848,7 +832,6 @@ private fun ModuleList(
             item(key = "module_intro", contentType = "module_intro") {
                 ModuleMiuixIntro(
                     isSafeMode = isSafeMode,
-                    onOpenRepo = actions.onOpenRepo,
                 )
             }
             item(key = "module_section_header", contentType = "module_section_header") {

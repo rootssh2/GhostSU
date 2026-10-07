@@ -14,6 +14,9 @@
     <string name="ghostsu_ghost_status_ready">Ready to activate</string>
     <string name="ghostsu_ghost_status_ready_summary">Compatible kernel · device profile ready</string>
     <string name="ghostsu_ghost_status_active">Temporary root active</string>
-    <string name="ghostsu_ghost_status_active_summary">Ghost SU recognized by KernelSU</string>
+    <string name="ghostsu_ghost_status_active_summary">Temporary root access active in this session</string>
     <string name="ghostsu_ghost_action_active">Root already active</string>
+    <string name="ghostsu_nav_root">Root</string>
+    <string name="ghostsu_nav_modules">Modules</string>
+    <string name="ghostsu_nav_settings">Settings</string>
 </resources>

@@ -37,10 +37,10 @@ fun BottomBarMaterial(navigationBadge: NavigationBadgeState) {
 
     val items = listOf(
         Triple(R.string.home, Icons.Filled.Home, Icons.Outlined.Home),
-        Triple(R.string.superuser, Icons.Filled.Shield, Icons.Outlined.Shield),
-        Triple(R.string.module, Icons.Filled.Extension, Icons.Outlined.Extension),
+        Triple(R.string.ghostsu_nav_root, Icons.Filled.Shield, Icons.Outlined.Shield),
+        Triple(R.string.ghostsu_nav_modules, Icons.Filled.Extension, Icons.Outlined.Extension),
         Triple(R.string.ghost, Icons.Filled.AutoAwesome, Icons.Outlined.AutoAwesome),
-        Triple(R.string.settings, Icons.Filled.Settings, Icons.Outlined.Settings)
+        Triple(R.string.ghostsu_nav_settings, Icons.Filled.Settings, Icons.Outlined.Settings)
     )
 
     ShortNavigationBar(

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_ui_mode">Estilo da interface</string>
+    <string name="settings_ui_mode_summary">Escolha entre Material e Miuix.</string>
+    <string name="settings_theme">Tema</string>
+    <string name="settings_theme_summary">Escolha a aparência do aplicativo.</string>
+    <string name="settings_module_check_update">Verificar atualizações dos módulos</string>
+    <string name="feature_status_unsupported_summary">O kernel não oferece suporte a este recurso.</string>
+    <string name="feature_status_managed_summary">Este recurso é gerenciado por um módulo.</string>
+    <string name="settings_mode_enable_by_default">Ativar (padrão)</string>
+    <string name="settings_mode_disable_until_reboot">Desativar até reiniciar</string>
+    <string name="settings_mode_disable_always">Sempre desativado</string>
+    <string name="settings_selinux_hide">Ocultar modificações do SELinux</string>
+    <string name="settings_selinux_hide_summary">Impedir que aplicativos detectem mudanças no SELinux.</string>
+    <string name="settings_sulog_summary">Registrar eventos de root nos arquivos de log do Ghost SU.</string>
+    <string name="settings_adb_root">Root via ADB</string>
+    <string name="settings_adb_root_summary">Executar o serviço ADB com privilégios de root.</string>
+    <string name="settings_soft_reboot">Reinicialização suave em vez de completa</string>
+    <string name="settings_soft_reboot_summary">Usar reinicialização suave ao instalar, atualizar ou ativar módulos.</string>
+    <string name="settings_auto_jailbreak">Ativação automática do root</string>
+    <string name="settings_auto_jailbreak_summary">Tentar ativar o root ao iniciar, caso o SELinux esteja permissivo. É necessário permitir que o Ghost SU inicie automaticamente.</string>
+    <string name="ghostsu_nav_root">Root</string>
+    <string name="ghostsu_nav_modules">Módulos</string>
+    <string name="ghostsu_nav_settings">Ajustes</string>
+</resources>

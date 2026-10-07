@@ -168,7 +168,7 @@ class AndroidGhostlockRepository(context: Context) : GhostlockRepository {
                 .filter { it.isNotBlank() }
                 .distinct()
                 .joinToString(" / "),
-            ramTotal = formatBytes(memoryInfo().totalMem),
+            ramTotal = formatTotalRam(memoryInfo().totalMem),
             ramAvailable = formatBytes(memoryInfo().availMem),
             cpuCores = resolveCpuCores(),
             architecture = Build.SUPPORTED_ABIS.firstOrNull().orEmpty().ifBlank { "Não disponível" },
@@ -1034,12 +1034,15 @@ class AndroidGhostlockRepository(context: Context) : GhostlockRepository {
     private fun memoryInfo(): ActivityManager.MemoryInfo =
         (appContext.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager)
             .let { manager -> ActivityManager.MemoryInfo().also(manager::getMemoryInfo) }
+    // Phone RAM is advertised in decimal GB; dividing by GiB made a 12 GB device read as 11 GB.
+    private fun formatTotalRam(bytes: Long): String =
+        if (bytes <= 0L) "Não disponível" else "${kotlin.math.round(bytes / 1_000_000_000.0).toInt()} GB"
     private fun formatBytes(bytes: Long): String =
-        if (bytes <= 0L) "Não disponível" else "%.1f GB".format(Locale.ROOT, bytes / 1_073_741_824.0)
+        if (bytes <= 0L) "Não disponível" else "%.1f GB".format(Locale.ROOT, bytes / 1_000_000_000.0)
     private fun resolveCpuCores(): String {
+        val present = parseCpuList(readSysFile("/sys/devices/system/cpu/present")).distinct().size
         val online = parseCpuList(readSysFile("/sys/devices/system/cpu/online")).distinct().size
-        val available = Runtime.getRuntime().availableProcessors().coerceAtLeast(online)
-        return if (online > 0) "$online online / $available total" else "$available total"
+        return maxOf(present, online, Runtime.getRuntime().availableProcessors()).toString()
     }
 
     private fun firstValidProperty(vararg keys: String): String? = keys.asSequence().firstNotNullOfOrNull { validDeviceName(systemProperty(it)) }

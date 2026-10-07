@@ -7,7 +7,7 @@
     <string name="ghostsu_home_system_status">Estado do sistema</string>
     <string name="ghostsu_home_active">Ativo</string>
     <string name="ghostsu_home_root_active">Root temporário ativo</string>
-    <string name="ghostsu_home_root_active_summary">Ghost SU reconhecido pelo KernelSU. Acesso temporário nesta sessão.</string>
+    <string name="ghostsu_home_root_active_summary">Acesso temporário ativo nesta sessão.</string>
     <string name="ghostsu_home_installed">KernelSU instalado</string>
     <string name="ghostsu_home_root_unavailable_summary">KernelSU está instalado, mas o Root não está disponível.</string>
     <string name="ghostsu_home_root_available">Root disponível</string>
