@@ -16,8 +16,8 @@
     <string name="ghostsu_ghost_status_active">Temporary root active</string>
     <string name="ghostsu_ghost_status_active_summary">Temporary root access active in this session</string>
     <string name="ghostsu_ghost_action_active">Root already active</string>
-    <string name="ghostsu_vector_soft_reboot_blocked">Soft reboot blocked: Vector can crash the system in temporary-root mode. A full reboot removes temporary root; reactivate it in Ghost.</string>
-    <string name="ghostsu_vector_full_reboot_notice">Soft reboot is unsafe with Vector. A full reboot removes temporary root; reactivate it from the Ghost tab.</string>
+    <string name="ghostsu_vector_soft_reboot_blocked">Soft reboot blocked: Vector needs the reviewed compatibility hook before it is safe in temporary-root mode. Do not repeat a reboot loop.</string>
+    <string name="ghostsu_vector_full_reboot_notice">Vector has no verified soft-reboot hook. A full reboot removes temporary root; reactivate it from the Ghost tab.</string>
     <string name="ghostsu_nav_root">Root</string>
     <string name="ghostsu_nav_modules">Modules</string>
     <string name="ghostsu_nav_settings">Settings</string>

@@ -490,20 +490,27 @@ private fun readMagic(channel: DataSourceChannel): String {
     return String(buffer.array(), StandardCharsets.ISO_8859_1)
 }
 
-/** Vector v2.2 restarts its daemon on every KernelSU emulated soft reboot.
- * In late-load mode, the surviving old daemon can crash system_server/RescueParty.
- * Check both active and pending installs so the post-flash action is safe too.
+/** Vector v2.2 restarts its daemon on every emulated soft reboot. Only allow
+ * it when the *active* module contains the reviewed hook from Vector PR #914.
+ * A patch in modules_update cannot run yet: the hook stage precedes updates.
+ * Fail closed on inaccessible modules, unknown scripts or missing sha256sum.
  */
 fun isVectorSoftRebootUnsafe(): Boolean {
     if (!Natives.isLateLoadMode) return false
     return runCatching {
         ShellUtils.fastCmdResult(
             getRootShell(),
-            "for d in /data/adb/modules/zygisk_vector /data/adb/modules_update/zygisk_vector; do " +
-                "[ -f \"\$d/module.prop\" ] && [ ! -f \"\$d/disable\" ] && " +
-                "[ ! -f \"\$d/remove\" ] && exit 0; done; exit 1",
+            "active=/data/adb/modules/zygisk_vector; " +
+                "pending=/data/adb/modules_update/zygisk_vector; " +
+                "if [ -f \"\$active/module.prop\" ] && [ ! -f \"\$active/disable\" ] " +
+                "&& [ ! -f \"\$active/remove\" ]; then " +
+                "[ \"\$(sha256sum \"\$active/emulated-soft-reboot.sh\" 2>/dev/null | cut -d' ' -f1)\" " +
+                "= 15654078c4bf6e4e9192cea81458e465a8afc0667720a98d14f427f93d1e0838 ] " +
+                "|| exit 0; " +
+                "elif [ -f \"\$pending/module.prop\" ] && [ ! -f \"\$pending/disable\" ] " +
+                "&& [ ! -f \"\$pending/remove\" ]; then exit 0; fi; exit 1",
         )
-    }.getOrDefault(false)
+    }.getOrDefault(true)
 }
 
 fun reboot(reason: String = "") {
