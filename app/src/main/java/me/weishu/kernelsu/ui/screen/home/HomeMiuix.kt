@@ -55,7 +55,6 @@ import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.CardDefaults
 import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.basic.Text
-import top.yukonga.miuix.kmp.basic.TextButton
 import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.blur.LayerBackdrop
 import top.yukonga.miuix.kmp.blur.layerBackdrop
@@ -230,9 +229,6 @@ private fun StatusCard(state: HomeUiState, actions: HomeActions) {
                 if (state.isSafeMode) StatusTag(label = stringResource(R.string.safe_mode), backgroundColor = contentColor.copy(alpha = 0.14f), contentColor = contentColor)
                 if (state.isLateLoadMode) StatusTag(label = stringResource(R.string.home_jailbreak), backgroundColor = contentColor.copy(alpha = 0.14f), contentColor = contentColor)
                 if (state.showCustomLkmBadge) StatusTag(label = stringResource(R.string.home_lkm_custom), backgroundColor = contentColor.copy(alpha = 0.14f), contentColor = contentColor)
-            }
-            if (notInstalled && state.isSELinuxPermissive) {
-                TextButton(text = stringResource(R.string.home_jailbreak), onClick = actions.onJailbreakClick)
             }
         }
     }

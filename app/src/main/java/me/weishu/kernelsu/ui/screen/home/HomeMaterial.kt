@@ -26,8 +26,6 @@ import androidx.compose.material.icons.filled.Smartphone
 import androidx.compose.material.icons.rounded.Block
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Warning
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -211,15 +209,6 @@ private fun StatusCard(state: HomeUiState, actions: HomeActions) {
                 if (state.isSafeMode) StatusTag(label = stringResource(R.string.safe_mode), backgroundColor = contentColor.copy(alpha = 0.14f), contentColor = contentColor)
                 if (state.isLateLoadMode) StatusTag(label = stringResource(R.string.home_jailbreak), backgroundColor = contentColor.copy(alpha = 0.14f), contentColor = contentColor)
                 if (state.showCustomLkmBadge) StatusTag(label = stringResource(R.string.home_lkm_custom), backgroundColor = contentColor.copy(alpha = 0.14f), contentColor = contentColor)
-            }
-            if (notInstalled && state.isSELinuxPermissive) {
-                Button(
-                    onClick = actions.onJailbreakClick,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.error,
-                        contentColor = MaterialTheme.colorScheme.onError,
-                    ),
-                ) { Text(stringResource(R.string.home_jailbreak)) }
             }
         }
     }
