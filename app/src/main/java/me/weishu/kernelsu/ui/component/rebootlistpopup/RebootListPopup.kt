@@ -12,6 +12,7 @@ import me.weishu.kernelsu.R
 import me.weishu.kernelsu.ui.LocalUiMode
 import me.weishu.kernelsu.ui.UiMode
 import me.weishu.kernelsu.ui.component.dialog.rememberConfirmDialog
+import me.weishu.kernelsu.ui.util.isVectorSoftRebootUnsafe
 import me.weishu.kernelsu.ui.util.reboot
 
 data class RebootListOption(
@@ -31,7 +32,11 @@ fun getRebootListOption(): List<RebootListOption> {
         if (isRebootingUserspaceSupported) {
             add(RebootListOption(R.string.reboot_userspace, "userspace"))
         }
-        add(RebootListOption(R.string.reboot_soft, "soft_reboot"))
+        // Vector v2.2 cannot safely survive KernelSU's emulated soft reboot
+        // in late-load mode. The reboot() guard also covers stale open menus.
+        if (!isVectorSoftRebootUnsafe()) {
+            add(RebootListOption(R.string.reboot_soft, "soft_reboot"))
+        }
         add(RebootListOption(R.string.reboot_recovery, "recovery"))
         add(RebootListOption(R.string.reboot_bootloader, "bootloader"))
         add(RebootListOption(R.string.reboot_download, "download"))

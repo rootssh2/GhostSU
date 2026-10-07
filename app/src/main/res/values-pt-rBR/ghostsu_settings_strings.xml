@@ -16,4 +16,6 @@
     <string name="ghostsu_ghost_status_active">Root temporário ativo</string>
     <string name="ghostsu_ghost_status_active_summary">Acesso temporário ativo nesta sessão</string>
     <string name="ghostsu_ghost_action_active">Root já ativo</string>
+    <string name="ghostsu_vector_soft_reboot_blocked">Reinicialização suave bloqueada: o Vector pode travar o sistema com root temporário. A reinicialização completa remove o root; reative-o na aba Ghost.</string>
+    <string name="ghostsu_vector_full_reboot_notice">A reinicialização suave é insegura com o Vector. Reiniciar completamente remove o root temporário; reative-o na aba Ghost.</string>
 </resources>

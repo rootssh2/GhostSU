@@ -141,9 +141,9 @@ import me.weishu.kernelsu.ui.component.material.ExpressiveSwitch
 import me.weishu.kernelsu.ui.component.material.SearchAppBar
 import me.weishu.kernelsu.ui.component.material.SnackBarHost
 import me.weishu.kernelsu.ui.component.material.TonalCard
+import me.weishu.kernelsu.ui.component.rebootlistpopup.rememberRebootAction
 import me.weishu.kernelsu.ui.component.statustag.StatusTag
 import me.weishu.kernelsu.ui.theme.LocalModuleDescriptionMaxLines
-import me.weishu.kernelsu.ui.util.reboot
 
 @SuppressLint("StringFormatInvalid")
 @Composable
@@ -159,6 +159,7 @@ fun ModulePagerMaterial(
 
     val context = LocalContext.current
     val resource = LocalResources.current
+    val onReboot = rememberRebootAction()
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 
@@ -254,16 +255,20 @@ fun ModulePagerMaterial(
                 // Cancel the previous reboot snackbar so a new one replaces it instead of queueing
                 snackbarJob.value?.cancel()
                 snackBarHost.currentSnackbarData?.dismiss()
-                // Soft reboot keeps the jailbreak and still applies module changes
+                // Vector v2.2 may crash Android's system_server on an emulated
+                // KernelSU soft reboot. Never suggest it when Vector is active.
                 val softReboot = isSoftRebootPreferred()
+                val message = if (Natives.isLateLoadMode && !softReboot) {
+                    "${event.message}\n${resource.getString(R.string.ghostsu_vector_full_reboot_notice)}"
+                } else event.message
                 snackbarJob.value = scope.launch {
                     val result = snackBarHost.showSnackbar(
-                        message = event.message,
+                        message = message,
                         actionLabel = resource.getString(if (softReboot) R.string.reboot_soft else R.string.reboot),
                         duration = SnackbarDuration.Long
                     )
                     if (result == SnackbarResult.ActionPerformed) {
-                        reboot(if (softReboot) "soft_reboot" else "")
+                        onReboot(if (softReboot) "soft_reboot" else "")
                     }
                 }
             }

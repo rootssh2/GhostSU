@@ -5,11 +5,14 @@ import android.content.Context
 import android.database.Cursor
 import android.net.Uri
 import android.os.Environment
+import android.os.Handler
+import android.os.Looper
 import android.os.Parcelable
 import android.os.SystemClock
 import android.provider.OpenableColumns
 import android.system.Os
 import android.util.Log
+import android.widget.Toast
 import com.topjohnwu.superuser.CallbackList
 import com.topjohnwu.superuser.Shell
 import com.topjohnwu.superuser.ShellUtils
@@ -18,6 +21,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.parcelize.Parcelize
 import me.weishu.kernelsu.BuildConfig
 import me.weishu.kernelsu.Natives
+import me.weishu.kernelsu.R
 import me.weishu.kernelsu.core.tasks.BootKernelVersion
 import me.weishu.kernelsu.core.tasks.ExtractImage
 import me.weishu.kernelsu.core.tasks.ProbeResult
@@ -486,8 +490,33 @@ private fun readMagic(channel: DataSourceChannel): String {
     return String(buffer.array(), StandardCharsets.ISO_8859_1)
 }
 
+/** Vector v2.2 restarts its daemon on every KernelSU emulated soft reboot.
+ * In late-load mode, the surviving old daemon can crash system_server/RescueParty.
+ * Check both active and pending installs so the post-flash action is safe too.
+ */
+fun isVectorSoftRebootUnsafe(): Boolean {
+    if (!Natives.isLateLoadMode) return false
+    return runCatching {
+        ShellUtils.fastCmdResult(
+            getRootShell(),
+            "for d in /data/adb/modules/zygisk_vector /data/adb/modules_update/zygisk_vector; do " +
+                "[ -f \"\$d/module.prop\" ] && [ ! -f \"\$d/disable\" ] && " +
+                "[ ! -f \"\$d/remove\" ] && exit 0; done; exit 1",
+        )
+    }.getOrDefault(false)
+}
+
 fun reboot(reason: String = "") {
     if (reason == "soft_reboot") {
+        // Guard direct calls as well as the menu/snackbar, even if module state
+        // changed while the menu was open. Never silently substitute a full reboot.
+        if (isVectorSoftRebootUnsafe()) {
+            Log.w(TAG, "Blocked emulated soft reboot with Vector in late-load mode")
+            Handler(Looper.getMainLooper()).post {
+                Toast.makeText(ksuApp, R.string.ghostsu_vector_soft_reboot_blocked, Toast.LENGTH_LONG).show()
+            }
+            return
+        }
         execKsud("soft-reboot", true, true)
         return
     }

@@ -16,15 +16,17 @@ import me.weishu.kernelsu.ui.screen.modulerepo.RepoSort
 import me.weishu.kernelsu.ui.util.execKsud
 import me.weishu.kernelsu.ui.util.getFeaturePersistValue
 import me.weishu.kernelsu.ui.util.getFeatureStatus
+import me.weishu.kernelsu.ui.util.isVectorSoftRebootUnsafe
 import java.security.SecureRandom
 
 private const val SETTINGS_PREFS = "settings"
 private const val KEY_USE_SOFT_REBOOT = "soft_reboot"
 
-/** Prefer soft reboot: always in jailbreak mode, or when the setting is enabled. */
+/** Never suggest the emulated reboot while Vector runs in temporary-root mode. */
 fun isSoftRebootPreferred(): Boolean =
-    Natives.isLateLoadMode || ksuApp.getSharedPreferences(SETTINGS_PREFS, Context.MODE_PRIVATE)
-        .getBoolean(KEY_USE_SOFT_REBOOT, false)
+    !isVectorSoftRebootUnsafe() &&
+        (Natives.isLateLoadMode || ksuApp.getSharedPreferences(SETTINGS_PREFS, Context.MODE_PRIVATE)
+            .getBoolean(KEY_USE_SOFT_REBOOT, false))
 
 class SettingsRepositoryImpl : SettingsRepository {
 

@@ -118,7 +118,7 @@ import me.weishu.kernelsu.ui.theme.LocalModuleDescriptionMaxLines
 import me.weishu.kernelsu.ui.theme.isInDarkTheme
 import me.weishu.kernelsu.ui.util.BlurredBar
 import me.weishu.kernelsu.ui.util.getFileName
-import me.weishu.kernelsu.ui.util.reboot
+import me.weishu.kernelsu.ui.component.rebootlistpopup.rememberRebootAction
 import me.weishu.kernelsu.ui.util.rememberBlurBackdrop
 import top.yukonga.miuix.kmp.basic.ButtonDefaults
 import top.yukonga.miuix.kmp.basic.Card
@@ -169,6 +169,7 @@ fun ModulePagerMiuix(
     val searchStatus = uiState.searchStatus
 
     val context = LocalContext.current
+    val onReboot = rememberRebootAction()
     val snackbarHostState = remember { SnackbarHostState() }
     val density = LocalDensity.current
     val enableBlur = LocalEnableBlur.current
@@ -230,16 +231,19 @@ fun ModulePagerMiuix(
                 // Cancel the previous reboot snackbar so a new one replaces it instead of queueing
                 snackbarJob.value?.cancel()
                 snackbarHostState.newestSnackbarData()?.dismiss()
-                // Soft reboot keeps the jailbreak and still applies module changes
+                // Suppress unsafe soft reboot with Vector in temporary-root mode.
                 val softReboot = isSoftRebootPreferred()
+                val message = if (Natives.isLateLoadMode && !softReboot) {
+                    "${event.message}\n${context.getString(R.string.ghostsu_vector_full_reboot_notice)}"
+                } else event.message
                 snackbarJob.value = scope.launch {
                     val result = snackbarHostState.showSnackbar(
-                        message = event.message,
+                        message = message,
                         actionLabel = context.getString(if (softReboot) R.string.reboot_soft else R.string.reboot),
                         duration = SnackbarDuration.Long,
                     )
                     if (result == SnackbarResult.ActionPerformed) {
-                        reboot(if (softReboot) "soft_reboot" else "")
+                        onReboot(if (softReboot) "soft_reboot" else "")
                     }
                 }
             }
