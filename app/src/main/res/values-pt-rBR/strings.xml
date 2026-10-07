@@ -25,11 +25,11 @@
     <string name="install">Instalar</string>
     <string name="reboot">Reiniciar</string>
     <string name="settings">Configurações</string>
-    <string name="reboot_userspace">Reinicialização suave</string>
-    <string name="reboot_recovery">Reiniciar em modo Recovery</string>
-    <string name="reboot_bootloader">Reiniciar em modo Bootloader</string>
-    <string name="reboot_download">Reiniciar em modo Download</string>
-    <string name="reboot_edl">Reiniciar em modo EDL</string>
+    <string name="reboot_userspace">Reiniciar espaço do usuário</string>
+    <string name="reboot_recovery">Reiniciar no modo de recuperação</string>
+    <string name="reboot_bootloader">Reiniciar no carregador de inicialização</string>
+    <string name="reboot_download">Reiniciar no modo Download</string>
+    <string name="reboot_edl">Reiniciar no modo EDL</string>
     <string name="about">Sobre</string>
     <string name="module_uninstall_confirm">Tem certeza que deseja desinstalar o módulo %s?</string>
     <string name="module_uninstall_success">%s desinstalado</string>

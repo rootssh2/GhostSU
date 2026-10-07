@@ -19,6 +19,8 @@
     <string name="settings_soft_reboot_summary">Usar reinicialização suave ao instalar, atualizar ou ativar módulos.</string>
     <string name="settings_auto_jailbreak">Ativação automática do root</string>
     <string name="settings_auto_jailbreak_summary">Tentar ativar o root ao iniciar, caso o SELinux esteja permissivo. É necessário permitir que o Ghost SU inicie automaticamente.</string>
+    <string name="reboot_soft">Reinicialização suave</string>
+    <string name="jailbreak_reboot_warning">O root temporário será perdido ao reiniciar completamente. Depois que o aparelho ligar, será necessário ativá-lo novamente na aba Ghost. Deseja reiniciar mesmo assim?</string>
     <string name="ghostsu_nav_root">Root</string>
     <string name="ghostsu_nav_modules">Módulos</string>
     <string name="ghostsu_nav_settings">Ajustes</string>

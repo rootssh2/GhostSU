@@ -33,6 +33,8 @@ import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material.icons.rounded.RemoveCircleOutline
 import androidx.compose.material.icons.rounded.Security
 import androidx.compose.material.icons.rounded.WarningAmber
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material3.Button as MaterialButton
 import androidx.compose.material3.Card as MaterialCard
 import androidx.compose.material3.CardDefaults as MaterialCardDefaults
@@ -41,10 +43,14 @@ import androidx.compose.material3.DropdownMenuItem as MaterialDropdownMenuItem
 import androidx.compose.material3.Icon as MaterialIcon
 import androidx.compose.material3.LargeTopAppBar as MaterialLargeTopAppBar
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet as MaterialModalBottomSheet
+import androidx.compose.material3.SheetValue as MaterialSheetValue
 import androidx.compose.material3.OutlinedButton as MaterialOutlinedButton
 import androidx.compose.material3.Scaffold as MaterialScaffold
 import androidx.compose.material3.Text as MaterialText
 import androidx.compose.material3.TopAppBarDefaults as MaterialTopAppBarDefaults
+import androidx.compose.material3.IconButton as MaterialIconButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -382,10 +388,8 @@ internal fun GhostlockApp(
                     uiMode = uiMode,
                     rootActive = rootActive,
                 )
-                /* The existing profile/log overlays remain available in
-                 * Material mode; they are scoped with Miuix only while
-                 * shown so the Material main screen is not forced through
-                 * a Miuix theme. */
+                /* Material uses its own execution-log sheet; the remaining
+                 * profile dialogs retain their existing Miuix presentation. */
                 GhostlockOverlays(state = state, actions = actions, uiMode = uiMode)
             }
         }
@@ -476,7 +480,15 @@ private fun GhostlockOverlays(
     actions: GhostlockActions,
     uiMode: UiMode,
 ) {
-    GhostlockMiuixEntry(uiMode) {
+    if (uiMode == UiMode.Material) {
+        GhostlockMiuixEntry(uiMode) {
+            GhostlockDialog(state = state, actions = actions)
+            GhostlockOverwriteDialog(state = state, actions = actions)
+        }
+        if (state.executionSheetVisible) {
+            MaterialGhostlockExecutionSheet(state = state, actions = actions)
+        }
+    } else {
         GhostlockDialog(state = state, actions = actions)
         GhostlockOverwriteDialog(state = state, actions = actions)
         GhostlockExecutionSheet(state = state, actions = actions)
@@ -878,6 +890,69 @@ internal fun pageContentPadding(
         top = scaffoldPadding.calculateTopPadding() + top,
         bottom = scaffoldPadding.calculateBottomPadding() + bottom,
     )
+}
+
+@Composable
+private fun MaterialGhostlockExecutionSheet(
+    state: GhostlockUiState,
+    actions: GhostlockActions,
+) {
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true,
+        confirmValueChange = { target ->
+            target != MaterialSheetValue.Hidden || state.executionSheetDismissible
+        },
+    )
+    val listState = rememberLazyListState()
+    LaunchedEffect(state.logLines.size) {
+        if (state.logLines.isNotEmpty()) listState.scrollToItem(state.logLines.lastIndex)
+    }
+    MaterialModalBottomSheet(
+        onDismissRequest = { if (state.executionSheetDismissible) actions.onCloseExecutionSheet() },
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            MaterialText(
+                text = stringResource(R.string.ghost_log_title),
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.weight(1f),
+            )
+            MaterialIconButton(onClick = actions::onCopyLogs) {
+                MaterialIcon(Icons.Filled.ContentCopy, contentDescription = stringResource(R.string.ghost_action_copy))
+            }
+            MaterialIconButton(
+                onClick = actions::onCloseExecutionSheet,
+                enabled = state.executionSheetDismissible,
+            ) {
+                MaterialIcon(Icons.Filled.Close, contentDescription = stringResource(R.string.ghost_action_close))
+            }
+        }
+        SelectionContainer {
+            LazyColumn(
+                state = listState,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 240.dp, max = 520.dp)
+                    .background(Color(0xFF0B1220))
+                    .navigationBarsPadding()
+                    .padding(12.dp),
+            ) {
+                items(state.logLines) { line ->
+                    MaterialText(
+                        text = line.text.trimEnd('\r', '\n'),
+                        color = lineColor(line.color),
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 12.sp,
+                        lineHeight = 16.sp,
+                    )
+                }
+            }
+        }
+    }
 }
 
 @Composable
