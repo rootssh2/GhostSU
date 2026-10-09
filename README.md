@@ -16,6 +16,10 @@ Gerenciador Android independente baseado no Manager do KernelSU, com a aba Ghost
 - Modo seguro e Shizuku desligados por padrão.
 - Atualizações do aplicativo desativadas; atualizações de módulos permanecem separadas.
 
+## Dispositivos suportados
+
+A lista de perfis e dispositivos suportados está disponível em [português brasileiro](docs/kernel_profiles/SUPPORTED_DEVICES_PT-BR.md), preservando as versões exatas dos kernels e os identificadores dos modelos.
+
 ## Build local
 
 Requisitos principais:
